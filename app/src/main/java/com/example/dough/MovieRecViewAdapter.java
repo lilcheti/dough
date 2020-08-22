@@ -46,7 +46,7 @@ public class MovieRecViewAdapter extends RecyclerView.Adapter<MovieRecViewAdapte
             @Override
             public void onClick(View view) {
                 LayoutInflater inflater = (LayoutInflater) view.getContext().getSystemService(view.getContext().LAYOUT_INFLATER_SERVICE);
-                View popupView = inflater.inflate(R.layout.activity_popup, null);
+                final View popupView = inflater.inflate(R.layout.activity_popup, null);
                 int width = LinearLayout.LayoutParams.MATCH_PARENT;
                 int height = LinearLayout.LayoutParams.MATCH_PARENT;
                 //Make Inactive Items Outside Of PopupWindow
@@ -70,6 +70,13 @@ public class MovieRecViewAdapter extends RecyclerView.Adapter<MovieRecViewAdapte
                         Intent intent = new Intent(view.getContext(), Playmovie.class);
                         intent.putExtra("vidurl", movie.get(position).getVidurl());
                         view.getContext().startActivity(intent);
+                    }
+                });
+                ImageButton imageButton1 = popupView.findViewById(R.id.imageButton2);
+                imageButton1.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        popupWindow.dismiss();
                     }
                 });
             }
