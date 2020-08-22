@@ -56,14 +56,14 @@ public class MovieRecViewAdapter extends RecyclerView.Adapter<MovieRecViewAdapte
             public void onClick(View view) {
                 LayoutInflater inflater = (LayoutInflater) view.getContext().getSystemService(view.getContext().LAYOUT_INFLATER_SERVICE);
                 final View popupView = inflater.inflate(R.layout.activity_popup, null);
-                int width = LinearLayout.LayoutParams.MATCH_PARENT;
-                int height = LinearLayout.LayoutParams.MATCH_PARENT;
+                int width = LinearLayout.LayoutParams.WRAP_CONTENT;
+                int height = LinearLayout.LayoutParams.WRAP_CONTENT;
                 //Make Inactive Items Outside Of PopupWindow
                 boolean focusable = true;
 
                 //Create a window with our parameters
                 final PopupWindow popupWindow = new PopupWindow(popupView, width, height, focusable);
-                popupWindow.showAtLocation(view, Gravity.LEFT, 50, 50);
+                popupWindow.showAtLocation(view, Gravity.CENTER, 50, 50);
                 TextView test2 = popupView.findViewById(R.id.textView);
                 test2.setText(movie.get(position).getName());
                 ImageView imageView = popupView.findViewById(R.id.imageView);
