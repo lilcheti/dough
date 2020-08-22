@@ -2,10 +2,14 @@ package com.example.dough;
 
 import android.content.Context;
 import android.content.Intent;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.PopupWindow;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -24,13 +28,13 @@ public class MovieRecViewAdapter extends RecyclerView.Adapter<MovieRecViewAdapte
     private Context context;
 
     public MovieRecViewAdapter(Context context) {
-        this.context=context;
+        this.context = context;
     }
 
     @NonNull
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.movie_list_item, parent ,false);
+        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.movie_list_item, parent, false);
         ViewHolder holder = new ViewHolder(view);
         return holder;
     }
@@ -41,17 +45,38 @@ public class MovieRecViewAdapter extends RecyclerView.Adapter<MovieRecViewAdapte
         holder.parent.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Toast.makeText(context, movie.get(position).getName(), Toast.LENGTH_SHORT).show();
-                Intent intent = new Intent(view.getContext(), Playmovie.class);
-                intent.putExtra("vidurl", movie.get(position).getVidurl());
-                view.getContext().startActivity(intent);
+                LayoutInflater inflater = (LayoutInflater) view.getContext().getSystemService(view.getContext().LAYOUT_INFLATER_SERVICE);
+                View popupView = inflater.inflate(R.layout.activity_popup, null);
+                int width = LinearLayout.LayoutParams.MATCH_PARENT;
+                int height = LinearLayout.LayoutParams.MATCH_PARENT;
+                //Make Inactive Items Outside Of PopupWindow
+                boolean focusable = true;
 
-
+                //Create a window with our parameters
+                final PopupWindow popupWindow = new PopupWindow(popupView, width, height, focusable);
+                popupWindow.showAtLocation(view, Gravity.LEFT, 50, 50);
+                TextView test2 = popupView.findViewById(R.id.textView);
+                test2.setText(movie.get(position).getName());
+                ImageView imageView = popupView.findViewById(R.id.imageView);
+                Glide.with(context)
+                        .asBitmap()
+                        .load(movie.get(position).getImageUrl())
+                        .into(imageView);
+                ImageButton imageButton = popupView.findViewById(R.id.imageButton);
+                imageButton.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        Toast.makeText(context, movie.get(position).getName(), Toast.LENGTH_SHORT).show();
+                        Intent intent = new Intent(view.getContext(), Playmovie.class);
+                        intent.putExtra("vidurl", movie.get(position).getVidurl());
+                        view.getContext().startActivity(intent);
+                    }
+                });
             }
         });
         Glide.with(context)
                 .asBitmap()
-                .load(movie.get(position).getImageurl())
+                .load(movie.get(position).getImageUrl())
                 .into(holder.image);
     }
 
@@ -65,10 +90,11 @@ public class MovieRecViewAdapter extends RecyclerView.Adapter<MovieRecViewAdapte
         notifyDataSetChanged();
     }
 
-    public class ViewHolder extends RecyclerView.ViewHolder{
+    public class ViewHolder extends RecyclerView.ViewHolder {
         private TextView txtName;
         private CardView parent;
         private ImageView image;
+
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
             txtName = itemView.findViewById(R.id.txtName);

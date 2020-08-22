@@ -9,7 +9,7 @@ public class movie {
         return vidurl;
     }
 
-    public void setVidurl(String vidurl) {
+    public void setVidUrl(String vidurl) {
         this.vidurl = vidurl;
     }
 
@@ -27,11 +27,11 @@ public class movie {
         this.name = name;
     }
 
-    public String getImageurl() {
+    public String getImageUrl() {
         return imageurl;
     }
 
-    public void setImageurl(String imageurl) {
+    public void setImageUrl(String imageurl) {
         this.imageurl = imageurl;
     }
 }
