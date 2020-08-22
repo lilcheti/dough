@@ -2,6 +2,8 @@ package com.example.dough;
 
 import android.content.Context;
 import android.content.Intent;
+import android.os.Environment;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -20,6 +22,13 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
 
+import java.io.DataInputStream;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.ArrayList;
 
 public class MovieRecViewAdapter extends RecyclerView.Adapter<MovieRecViewAdapter.ViewHolder> {
@@ -77,6 +86,46 @@ public class MovieRecViewAdapter extends RecyclerView.Adapter<MovieRecViewAdapte
                     @Override
                     public void onClick(View view) {
                         popupWindow.dismiss();
+                    }
+                });
+
+                ImageButton imageButton2 = popupView.findViewById(R.id.imageButton3);
+                imageButton2.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        new Thread(new Runnable() {
+                            @Override
+                            public void run() {
+                                try {
+                                    File myDir = new File(Environment.getExternalStorageDirectory() + "/" + "data");
+                                    myDir.mkdirs();
+
+                                   /* String fname = 1 + ".mkv";
+                                    File file = new File(myDir, fname);
+                                    if (file.exists()) file.delete();
+                                    file.createNewFile();*/
+                                    URL u = new URL(movie.get(position).getVidurl());
+                                    InputStream is = u.openStream();
+                                    DataInputStream dis = new DataInputStream(is);
+
+                                    byte[] buffer = new byte[1024];
+                                    int length;
+                                    FileOutputStream fos = new FileOutputStream(new File(Environment.getExternalStorageDirectory() + "1"));
+                                    while ((length = dis.read(buffer)) > 0) {
+                                        fos.write(buffer, 0, length);
+                                        System.out.println("salam");
+                                    }
+
+                                } catch (MalformedURLException mue) {
+                                    Log.e("SYNC getUpdate", "malformed url error", mue);
+                                } catch (IOException ioe) {
+                                    Log.e("SYNC getUpdate", "io error", ioe);
+                                } catch (SecurityException se) {
+                                    Log.e("SYNC getUpdate", "security error", se);
+                                }
+                            }
+                        }).start();
+
                     }
                 });
             }
