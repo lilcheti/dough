@@ -60,7 +60,6 @@ public class MovieRecViewAdapter extends RecyclerView.Adapter<MovieRecViewAdapte
                 int height = LinearLayout.LayoutParams.WRAP_CONTENT;
                 //Make Inactive Items Outside Of PopupWindow
                 boolean focusable = true;
-
                 //Create a window with our parameters
                 final PopupWindow popupWindow = new PopupWindow(popupView, width, height, focusable);
                 popupWindow.showAtLocation(view, Gravity.CENTER, 50, 50);
@@ -115,7 +114,6 @@ public class MovieRecViewAdapter extends RecyclerView.Adapter<MovieRecViewAdapte
                                         fos.write(buffer, 0, length);
                                         System.out.println("salam");
                                     }
-
                                 } catch (MalformedURLException mue) {
                                     Log.e("SYNC getUpdate", "malformed url error", mue);
                                 } catch (IOException ioe) {
