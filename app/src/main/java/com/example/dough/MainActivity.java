@@ -5,6 +5,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import android.Manifest;
 import android.app.DownloadManager;
@@ -31,18 +32,38 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements SwipeRefreshLayout.OnRefreshListener {
     private RecyclerView movierecview;
     private RecyclerView downloadedFilmRecylclerView;
-
+    SwipeRefreshLayout mSwipeRefreshLayout;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         movierecview = findViewById(R.id.movierecview);
         downloadedFilmRecylclerView = findViewById(R.id.downloadedFilms);
-       downloadJSON("https://raw.githubusercontent.com/cppox/Dough/master/movies.json");
 
+        mSwipeRefreshLayout = (SwipeRefreshLayout) findViewById(R.id.refresh);
+        mSwipeRefreshLayout.setOnRefreshListener(this);
+        mSwipeRefreshLayout.setColorSchemeResources(R.color.colorPrimary,
+                android.R.color.holo_green_dark,
+                android.R.color.holo_orange_dark,
+                android.R.color.holo_blue_dark);
+
+        /**
+         * Showing Swipe Refresh animation on activity create
+         * As animation won't start on onCreate, post runnable is used
+         */
+        mSwipeRefreshLayout.post(new Runnable() {
+
+            @Override
+            public void run() {
+
+                mSwipeRefreshLayout.setRefreshing(true);
+                downloadJSON("https://raw.githubusercontent.com/cppox/Dough/master/movies.json");
+                // Fetching data from server
+            }
+        });
     }
     private void downloadJSON(final String urlWebService) {
 
@@ -104,8 +125,12 @@ public class MainActivity extends AppCompatActivity {
         DownloadedMoviesAdapter downloadedMoviesAdapter = new DownloadedMoviesAdapter(movies , this );
         downloadedFilmRecylclerView.setAdapter(downloadedMoviesAdapter);
         downloadedFilmRecylclerView.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
+        mSwipeRefreshLayout.setRefreshing(false);
     }
 
 
-
+    @Override
+    public void onRefresh() {
+        downloadJSON("https://raw.githubusercontent.com/cppox/Dough/master/movies.json");
+    }
 }

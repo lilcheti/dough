@@ -1,34 +1,39 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.swiperefreshlayout.widget.SwipeRefreshLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:padding="10dp"
     tools:context=".MainActivity"
-    android:padding="10dp">
+    android:id="@+id/refresh">
 
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/movierecview"
-        android:layout_width="401dp"
-        android:layout_height="580dp"
-        android:layout_alignParentStart="true"
-        android:layout_alignParentTop="true"
-        android:layout_alignParentEnd="true"
-        android:layout_alignParentBottom="true"
-        android:layout_marginStart="0dp"
-        android:layout_marginTop="142dp"
-        android:layout_marginEnd="0dp"
-        android:layout_marginBottom="0dp" />
+    <androidx.core.widget.NestedScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_margin="5dp"
+            android:orientation="vertical">
 
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/downloadedFilms"
-        android:layout_width="401dp"
-        android:layout_height="132dp"
-        android:layout_alignParentStart="true"
-        android:layout_alignParentTop="true"
-        android:layout_alignParentEnd="true"
-        android:layout_marginStart="0dp"
-        android:layout_marginTop="0dp"
-        android:layout_marginEnd="0dp"
-        android:scrollbars="horizontal" />
-</RelativeLayout>
+
+
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/downloadedFilms"
+                android:layout_width="match_parent"
+                android:layout_height="132dp"
+                android:scrollbars="horizontal" />
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/movierecview"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="10dp"
+                />
+        </LinearLayout>
+    </androidx.core.widget.NestedScrollView>
+
+
+</androidx.swiperefreshlayout.widget.SwipeRefreshLayout>

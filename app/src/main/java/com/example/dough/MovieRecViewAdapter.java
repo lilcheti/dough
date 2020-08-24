@@ -6,6 +6,7 @@ import android.app.DownloadManager;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Environment;
@@ -71,7 +72,6 @@ public class MovieRecViewAdapter extends RecyclerView.Adapter<MovieRecViewAdapte
                 boolean focusable = true;
                 //Create a window with our parameters
                 final PopupWindow popupWindow = new PopupWindow(popupView, width, height, focusable);
-                popupWindow.setAnimationStyle(20);
                 popupWindow.showAtLocation(view, Gravity.CENTER, 0, 0);
                 TextView test2 = popupView.findViewById(R.id.textView);
                 test2.setText(movie.get(position).getName());
@@ -146,6 +146,7 @@ public class MovieRecViewAdapter extends RecyclerView.Adapter<MovieRecViewAdapte
 
     public class ViewHolder extends RecyclerView.ViewHolder {
         private TextView txtName;
+
         private CardView parent;
         private ImageView image;
 
