@@ -1,7 +1,13 @@
 package com.example.dough;
 
+import android.Manifest;
+import android.app.Activity;
+import android.app.DownloadManager;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.net.Uri;
+import android.os.Build;
 import android.os.Environment;
 import android.util.Log;
 import android.view.Gravity;
@@ -18,6 +24,8 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.cardview.widget.CardView;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
@@ -56,13 +64,15 @@ public class MovieRecViewAdapter extends RecyclerView.Adapter<MovieRecViewAdapte
             public void onClick(View view) {
                 LayoutInflater inflater = (LayoutInflater) view.getContext().getSystemService(view.getContext().LAYOUT_INFLATER_SERVICE);
                 final View popupView = inflater.inflate(R.layout.activity_popup, null);
-                int width = LinearLayout.LayoutParams.WRAP_CONTENT;
-                int height = LinearLayout.LayoutParams.WRAP_CONTENT;
+                int width = LinearLayout.LayoutParams.MATCH_PARENT;
+                int height = LinearLayout.LayoutParams.MATCH_PARENT;
+
                 //Make Inactive Items Outside Of PopupWindow
                 boolean focusable = true;
                 //Create a window with our parameters
                 final PopupWindow popupWindow = new PopupWindow(popupView, width, height, focusable);
-                popupWindow.showAtLocation(view, Gravity.CENTER, 50, 50);
+                popupWindow.setAnimationStyle(20);
+                popupWindow.showAtLocation(view, Gravity.CENTER, 0, 0);
                 TextView test2 = popupView.findViewById(R.id.textView);
                 test2.setText(movie.get(position).getName());
                 ImageView imageView = popupView.findViewById(R.id.imageView);
@@ -95,31 +105,21 @@ public class MovieRecViewAdapter extends RecyclerView.Adapter<MovieRecViewAdapte
                         new Thread(new Runnable() {
                             @Override
                             public void run() {
-                                try {
-                                    File myDir = new File(Environment.getExternalStorageDirectory() + "/" + "data");
-                                    myDir.mkdirs();
-
-                                   /* String fname = 1 + ".mkv";
-                                    File file = new File(myDir, fname);
-                                    if (file.exists()) file.delete();
-                                    file.createNewFile();*/
-                                    URL u = new URL(movie.get(position).getVidurl());
-                                    InputStream is = u.openStream();
-                                    DataInputStream dis = new DataInputStream(is);
-
-                                    byte[] buffer = new byte[1024];
-                                    int length;
-                                    FileOutputStream fos = new FileOutputStream(new File(Environment.getExternalStorageDirectory() + "1"));
-                                    while ((length = dis.read(buffer)) > 0) {
-                                        fos.write(buffer, 0, length);
-                                        System.out.println("salam");
+                                if(isDownloadManagerAvailable(context)){
+                                    String url = movie.get(position).getVidurl();
+                                    DownloadManager.Request request = new DownloadManager.Request(Uri.parse(url));
+                                    request.setDescription("در حال دانلود...");
+                                    request.setTitle(movie.get(position).getName());
+// in order for this if to run, you must use the android 3.2 to compile your app
+                                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
+                                        request.allowScanningByMediaScanner();
+                                        request.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED);
                                     }
-                                } catch (MalformedURLException mue) {
-                                    Log.e("SYNC getUpdate", "malformed url error", mue);
-                                } catch (IOException ioe) {
-                                    Log.e("SYNC getUpdate", "io error", ioe);
-                                } catch (SecurityException se) {
-                                    Log.e("SYNC getUpdate", "security error", se);
+                                    request.setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS, movie.get(position).getName()+".mkv");
+
+// get download service and enqueue file
+                                    DownloadManager manager = (DownloadManager) context.getSystemService(Context.DOWNLOAD_SERVICE);
+                                    manager.enqueue(request);
                                 }
                             }
                         }).start();
@@ -156,5 +156,12 @@ public class MovieRecViewAdapter extends RecyclerView.Adapter<MovieRecViewAdapte
             image = itemView.findViewById(R.id.image);
 
         }
+    }
+    public static boolean isDownloadManagerAvailable(Context context) {
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.GINGERBREAD) {
+            return true;
+        }
+        return false;
     }
 }
