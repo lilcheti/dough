@@ -18,6 +18,7 @@ import android.os.Environment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.ImageButton;
+import android.widget.LinearLayout;
 import android.widget.Toast;
 
 import org.json.JSONArray;
@@ -32,43 +33,16 @@ import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity {
     private RecyclerView movierecview;
+    private RecyclerView downloadedFilmRecylclerView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         movierecview = findViewById(R.id.movierecview);
-        downloadJSON("https://raw.githubusercontent.com/cppox/Dough/master/movies.json");
-        LayoutInflater inflater = (LayoutInflater) getSystemService(LAYOUT_INFLATER_SERVICE);
-        final View popupView = inflater.inflate(R.layout.activity_popup, null);
-        ImageButton imageButton2 = popupView.findViewById(R.id.imageButton3);
-        imageButton2.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(final View view) {
-                new Thread(new Runnable() {
-                    private static final int MY_PERMISSIONS_WRITE_EXTERNAL_STORAGE = 100;
+        downloadedFilmRecylclerView = findViewById(R.id.downloadedFilms);
+       downloadJSON("https://raw.githubusercontent.com/cppox/Dough/master/movies.json");
 
-                    @Override
-                    public void run() {
-
-                        if (Build.VERSION.SDK_INT >= 23) {
-                            if (checkSelfPermission(android.Manifest.permission.WRITE_EXTERNAL_STORAGE)
-                                    == PackageManager.PERMISSION_DENIED) {
-                                String[] permissions = {Manifest.permission.WRITE_EXTERNAL_STORAGE};
-                                requestPermissions(permissions , 1000);
-                            } else {
-                                startDownloading();
-                            }
-                        } else { //you dont need to worry about these stuff below api level 23
-                            startDownloading();
-                        }
-
-                    }
-
-                }).start();
-
-            }
-        });
     }
     private void downloadJSON(final String urlWebService) {
 
@@ -127,29 +101,11 @@ public class MainActivity extends AppCompatActivity {
         adapter.setMovie(movies);
         movierecview.setAdapter(adapter);
         movierecview.setLayoutManager(new GridLayoutManager(this, 3));
-
+        DownloadedMoviesAdapter downloadedMoviesAdapter = new DownloadedMoviesAdapter(movies , this );
+        downloadedFilmRecylclerView.setAdapter(downloadedMoviesAdapter);
+        downloadedFilmRecylclerView.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
     }
 
-    @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        switch (requestCode){
-            case 1000:
-                if (grantResults.length >0 && grantResults[0] == PackageManager.PERMISSION_GRANTED){
-                   startDownloading();
-                }else Toast.makeText(this , "Permission denide...!" , Toast.LENGTH_LONG).show();
-        }
-    }
 
-    public void startDownloading(){
-        DownloadManager.Request request = new DownloadManager.Request(Uri.parse(MovieRecViewAdapter.movie.get(MovieRecViewAdapter.position).getVidurl()));
-        request.setAllowedNetworkTypes(DownloadManager.Request.NETWORK_WIFI | DownloadManager.Request.NETWORK_MOBILE);
-        request.setTitle("Download");
-        request.setDescription("Downloading file...");
-        request.allowScanningByMediaScanner();
-        request.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED);
-        request.setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS , "1");
-        DownloadManager downloadManager = (DownloadManager)getSystemService(Context.DOWNLOAD_SERVICE);
-        downloadManager.enqueue(request);
-    }
+
 }
