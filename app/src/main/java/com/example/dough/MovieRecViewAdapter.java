@@ -1,13 +1,20 @@
 package com.example.dough;
 
+import android.Manifest;
+import android.app.Activity;
+import android.app.DownloadManager;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.os.Build;
 import android.os.Environment;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.webkit.MimeTypeMap;
+import android.webkit.URLUtil;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -18,6 +25,8 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.cardview.widget.CardView;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
@@ -33,8 +42,9 @@ import java.util.ArrayList;
 
 public class MovieRecViewAdapter extends RecyclerView.Adapter<MovieRecViewAdapter.ViewHolder> {
 
-    private ArrayList<movie> movie = new ArrayList<>();
+    public static ArrayList<movie> movie = new ArrayList<>();
     private Context context;
+    public static int position;
 
     public MovieRecViewAdapter(Context context) {
         this.context = context;
@@ -51,6 +61,7 @@ public class MovieRecViewAdapter extends RecyclerView.Adapter<MovieRecViewAdapte
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, final int position) {
         holder.txtName.setText(movie.get(position).getName());
+        this.position = position;
         holder.parent.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -88,50 +99,21 @@ public class MovieRecViewAdapter extends RecyclerView.Adapter<MovieRecViewAdapte
                     }
                 });
 
-                ImageButton imageButton2 = popupView.findViewById(R.id.imageButton3);
-                imageButton2.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View view) {
-                        new Thread(new Runnable() {
-                            @Override
-                            public void run() {
-                                try {
-                                    File myDir = new File(Environment.getExternalStorageDirectory() + "/" + "data");
-                                    myDir.mkdirs();
 
-                                   /* String fname = 1 + ".mkv";
-                                    File file = new File(myDir, fname);
-                                    if (file.exists()) file.delete();
-                                    file.createNewFile();*/
-                                    URL u = new URL(movie.get(position).getVidurl());
-                                    InputStream is = u.openStream();
-                                    DataInputStream dis = new DataInputStream(is);
-
-                                    byte[] buffer = new byte[1024];
-                                    int length;
-                                    FileOutputStream fos = new FileOutputStream(new File(Environment.getExternalStorageDirectory() + "1"));
-                                    while ((length = dis.read(buffer)) > 0) {
-                                        fos.write(buffer, 0, length);
-                                        System.out.println("salam");
-                                    }
-                                } catch (MalformedURLException mue) {
-                                    Log.e("SYNC getUpdate", "malformed url error", mue);
-                                } catch (IOException ioe) {
-                                    Log.e("SYNC getUpdate", "io error", ioe);
-                                } catch (SecurityException se) {
-                                    Log.e("SYNC getUpdate", "security error", se);
-                                }
-                            }
-                        }).start();
-
-                    }
-                });
             }
         });
         Glide.with(context)
-                .asBitmap()
-                .load(movie.get(position).getImageUrl())
-                .into(holder.image);
+                .
+
+                        asBitmap()
+                .
+
+                        load(movie.get(position).
+
+                                getImageUrl())
+                .
+
+                        into(holder.image);
     }
 
     @Override
@@ -156,5 +138,13 @@ public class MovieRecViewAdapter extends RecyclerView.Adapter<MovieRecViewAdapte
             image = itemView.findViewById(R.id.image);
 
         }
+    }
+
+    public void startDownloading() {
+
+    }
+
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+
     }
 }
