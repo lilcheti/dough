@@ -1,9 +1,12 @@
 package com.example.dough;
 
-public class movie {
+import java.io.File;
+
+public class Movie {
      private String name;
      private String imageurl;
      private String vidurl;
+     private File movieFile;
 
     public String getVidurl() {
         return vidurl;
@@ -13,10 +16,18 @@ public class movie {
         this.vidurl = vidurl;
     }
 
-    public movie(String name, String imageurl, String vidurl) {
+    public File getMovieFile() {
+        return movieFile;
+    }
+
+    public Movie(String name, String imageurl, String vidurl) {
         this.name = name;
         this.imageurl = imageurl;
         this.vidurl = vidurl;
+      }
+
+    public void setMovieFile(File movieFile) {
+        this.movieFile = movieFile;
     }
 
     public String getName() {

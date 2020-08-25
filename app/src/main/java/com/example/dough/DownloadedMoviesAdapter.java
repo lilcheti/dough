@@ -1,11 +1,13 @@
 package com.example.dough;
 
 import android.content.Context;
+import android.content.Intent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
@@ -16,11 +18,11 @@ import java.util.ArrayList;
 
 public class DownloadedMoviesAdapter extends RecyclerView.Adapter<DownloadedMoviesAdapter.ViewHolder> {
 
-    private ArrayList<movie> dlMovies;
+    private ArrayList<Movie> dlMovies;
     private LayoutInflater inflater;
     private Context context;
 
-    public DownloadedMoviesAdapter(ArrayList<movie> dlMovies, Context context) {
+    public DownloadedMoviesAdapter(ArrayList<Movie> dlMovies, Context context) {
         this.dlMovies = dlMovies;
         this.inflater = LayoutInflater.from(context);
         this.context = context;
@@ -33,11 +35,21 @@ public class DownloadedMoviesAdapter extends RecyclerView.Adapter<DownloadedMovi
     }
 
     @Override
-    public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
+    public void onBindViewHolder(@NonNull ViewHolder holder, final int position) {
         Glide.with(context)
                 .asBitmap()
                 .load(dlMovies.get(position).getImageUrl())
                 .into(holder.imageView);
+        holder.imageView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Toast.makeText(context, dlMovies.get(position).getName(), Toast.LENGTH_SHORT).show();
+                Intent intent = new Intent(view.getContext(), Playmovie.class);
+                intent.putExtra("movieFilePath" , dlMovies.get(position).getMovieFile().getAbsolutePath());
+                intent.putExtra("inLocal", "inLocal");
+                view.getContext().startActivity(intent);
+            }
+        });
         holder.textView.setText(dlMovies.get(position).getName());
         
     }

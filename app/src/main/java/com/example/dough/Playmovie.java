@@ -9,6 +9,7 @@ import android.view.View;
 import android.view.WindowManager;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
+import android.widget.Toast;
 
 import com.google.android.exoplayer2.DefaultLoadControl;
 import com.google.android.exoplayer2.ExoPlaybackException;
@@ -30,19 +31,26 @@ import com.google.android.exoplayer2.trackselection.TrackSelector;
 import com.google.android.exoplayer2.ui.PlayerView;
 import com.google.android.exoplayer2.upstream.BandwidthMeter;
 import com.google.android.exoplayer2.upstream.DefaultBandwidthMeter;
+import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory;
 import com.google.android.exoplayer2.upstream.DefaultHttpDataSourceFactory;
+
+import java.io.File;
 
 public class Playmovie extends AppCompatActivity {
     PlayerView playerView;
     ProgressBar progressBar;
     ImageView closebtn;
     String vidurl;
+    String movieFilePath;
     SimpleExoPlayer simpleExoPlayer;
+    String inLocal;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_playmovie);
         vidurl = getIntent().getStringExtra("vidurl");
+        inLocal = getIntent().getStringExtra("inLocal");
+        movieFilePath = getIntent().getStringExtra("movieFilePath");
         playerView = findViewById(R.id.player_view);
         progressBar = findViewById(R.id.progress_bar);
         closebtn = playerView.findViewById(R.id.close);
@@ -50,7 +58,16 @@ public class Playmovie extends AppCompatActivity {
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN
                 ,WindowManager.LayoutParams.FLAG_FULLSCREEN);
 
-        Uri url = Uri.parse(vidurl);
+        Uri url = null;
+        if (inLocal.equals("inLocal")) {
+            System.out.println("salam");
+            url = Uri.fromFile(new File(movieFilePath));
+            Toast.makeText(this , movieFilePath , Toast.LENGTH_LONG);
+        } else {
+            System.out.println("salamw");
+            url = Uri.parse(vidurl);
+        }
+
         LoadControl loadControl = new DefaultLoadControl();
 
         BandwidthMeter bandwidthMeter = new DefaultBandwidthMeter();
@@ -63,14 +80,13 @@ public class Playmovie extends AppCompatActivity {
                 Playmovie.this, trackSelector, loadControl
         );
 
-        DefaultHttpDataSourceFactory factory = new DefaultHttpDataSourceFactory(
-                "exoplayer_video"
-        );
+        DefaultHttpDataSourceFactory factory = new DefaultHttpDataSourceFactory("exoplayer_video");
 
         ExtractorsFactory extractorsFactory = new DefaultExtractorsFactory();
 
-        MediaSource mediaSource = new ExtractorMediaSource(url,factory,extractorsFactory,null,null);
-
+        MediaSource mediaSource = new ExtractorMediaSource.Factory(
+                new DefaultDataSourceFactory(this ,"Exoplayer-local")).
+                createMediaSource(url);
         playerView.setPlayer(simpleExoPlayer);
 
         playerView.setKeepScreenOn(true);

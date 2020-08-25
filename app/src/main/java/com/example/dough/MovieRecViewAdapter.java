@@ -1,16 +1,11 @@
 package com.example.dough;
 
-import android.Manifest;
-import android.app.Activity;
 import android.app.DownloadManager;
 import android.content.Context;
 import android.content.Intent;
-import android.content.pm.PackageManager;
-import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Environment;
-import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -19,30 +14,20 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.PopupWindow;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.cardview.widget.CardView;
-import androidx.core.app.ActivityCompat;
-import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
 
-import java.io.DataInputStream;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.util.ArrayList;
 
 public class MovieRecViewAdapter extends RecyclerView.Adapter<MovieRecViewAdapter.ViewHolder> {
 
-    private ArrayList<movie> movie = new ArrayList<>();
+    private ArrayList<Movie> movie = new ArrayList<>();
     private Context context;
 
     public MovieRecViewAdapter(Context context) {
@@ -87,6 +72,7 @@ public class MovieRecViewAdapter extends RecyclerView.Adapter<MovieRecViewAdapte
                         Toast.makeText(context, movie.get(position).getName(), Toast.LENGTH_SHORT).show();
                         Intent intent = new Intent(view.getContext(), Playmovie.class);
                         intent.putExtra("vidurl", movie.get(position).getVidurl());
+                        intent.putExtra("inLocal", "download");
                         view.getContext().startActivity(intent);
                     }
                 });
@@ -139,7 +125,7 @@ public class MovieRecViewAdapter extends RecyclerView.Adapter<MovieRecViewAdapte
         return movie.size();
     }
 
-    public void setMovie(ArrayList<com.example.dough.movie> movie) {
+    public void setMovie(ArrayList<Movie> movie) {
         this.movie = movie;
         notifyDataSetChanged();
     }

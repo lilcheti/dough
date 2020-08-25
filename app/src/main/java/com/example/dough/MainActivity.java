@@ -1,6 +1,5 @@
 package com.example.dough;
 
-import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
@@ -11,21 +10,13 @@ import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import android.Manifest;
-import android.app.DownloadManager;
-import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
-import android.provider.ContactsContract;
 import android.util.Log;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.widget.ImageButton;
-import android.widget.LinearLayout;
 import android.widget.Toast;
 
 import com.gun0912.tedpermission.PermissionListener;
@@ -152,18 +143,18 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
     @RequiresApi(api = Build.VERSION_CODES.M)
     private void loadIntoListView(String json) throws JSONException {
         JSONArray jsonArray = new JSONArray(json);
-        ArrayList<movie> movies = new ArrayList<>();
+        ArrayList<Movie> Movies = new ArrayList<>();
 
         for (int i = 0; i < jsonArray.length(); i++) {
             JSONObject obj = jsonArray.getJSONObject(i);
-            movies.add(new movie(obj.getString("name"), obj.getString("image"), obj.getString("vidurl")));
+            Movies.add(new Movie(obj.getString("name"), obj.getString("image"), obj.getString("vidurl")));
             //Toast.makeText(getApplicationContext(),"kk", Toast.LENGTH_SHORT).show();
         }
         /*File file = new File(Environment.DIRECTORY_DOWNLOADS + "/folderName");
         if (!file.mkdirs()) {
             file.mkdirs();
         }*/
-        System.out.println(movies.get(0).getVidurl());
+        System.out.println(Movies.get(0).getVidurl());
         askForPermission(Manifest.permission.READ_EXTERNAL_STORAGE, READ_EXST);
         File directory = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
 
@@ -172,15 +163,17 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
         Log.v("Files", directory.isDirectory() + "");
         Log.v("Files", directory.listFiles() + "");
         File[] files = directory.listFiles();
-        ArrayList<movie> downloadedMovies = new ArrayList<>();
+        ArrayList<Movie> downloadedMovies = new ArrayList<>();
         for (File file : files) {
             System.out.println(file.getName());
             String[] name = file.getName().split("\\.");
             String movieName = filmName(name);
-            downloadedMovies.add(findMovieByName(movieName, movies));
+            Movie movie = findMovieByName(movieName, Movies);
+            movie.setMovieFile(file);
+            downloadedMovies.add(movie);
         }
         MovieRecViewAdapter adapter = new MovieRecViewAdapter(this);
-        adapter.setMovie(movies);
+        adapter.setMovie(Movies);
         movierecview.setAdapter(adapter);
         movierecview.setLayoutManager(new GridLayoutManager(this, 3));
         DownloadedMoviesAdapter downloadedMoviesAdapter = new DownloadedMoviesAdapter(downloadedMovies, this);
@@ -203,8 +196,8 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
         return null;
     }
 
-    public movie findMovieByName(String name, ArrayList<movie> movies) {
-        for (movie movie : movies) {
+    public Movie findMovieByName(String name, ArrayList<Movie> Movies) {
+        for (Movie movie : Movies) {
             if (movie.getName().equals(name))
                 return movie;
         }
