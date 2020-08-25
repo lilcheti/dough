@@ -36,5 +36,6 @@ dependencies {
     annotationProcessor 'com.github.bumptech.glide:compiler:4.11.0'
     implementation 'com.google.android.exoplayer:exoplayer:2.7.3'
     implementation 'org.jsoup:jsoup:1.13.1'
+    implementation 'gun0912.ted:tedpermission-rx1:2.2.3'
 
 }
