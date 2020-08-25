@@ -39,6 +39,7 @@ public class DownloadedMoviesAdapter extends RecyclerView.Adapter<DownloadedMovi
                 .load(dlMovies.get(position).getImageUrl())
                 .into(holder.imageView);
         holder.textView.setText(dlMovies.get(position).getName());
+        
     }
 
     @Override

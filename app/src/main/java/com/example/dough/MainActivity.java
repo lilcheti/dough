@@ -4,7 +4,6 @@ import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
-import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -29,19 +28,24 @@ import android.widget.Toast;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
 
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity implements SwipeRefreshLayout.OnRefreshListener {
-    private static final int MY_PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE = 1000;
     private RecyclerView movierecview;
     private RecyclerView downloadedFilmRecylclerView;
     SwipeRefreshLayout mSwipeRefreshLayout;
+    private static final int MY_PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE = 1000;
+    private ArrayList<String> seriesnamelist = new ArrayList<>();
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -178,6 +182,7 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
         downloadJSON("https://raw.githubusercontent.com/cppox/Dough/master/movies.json");
     }
 
+
     public  boolean isReadStoragePermissionGranted() {
         if (Build.VERSION.SDK_INT >= 23) {
             if (checkSelfPermission(Manifest.permission.READ_EXTERNAL_STORAGE)
@@ -247,6 +252,12 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
     }
 
 
+        public void parser(String URL) throws IOException {
+            Document doc = Jsoup.connect(URL).get();
+            for (Element file : doc.select("td.right td a")) {
+                seriesnamelist.add(file.attr("href"));
+            }
+        }
 
 
 
