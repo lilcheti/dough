@@ -27,6 +27,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -54,6 +55,9 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
             public void run() {
                 try {
                     Document document = Jsoup.connect("http://dl2.persian2movie.com/Ali/Serial").get();
+                    for (Element file : document.select("a")) {
+                        System.out.println(file.text());
+                    }
                     System.out.println(document.title());
 
                 } catch (IOException e) {
