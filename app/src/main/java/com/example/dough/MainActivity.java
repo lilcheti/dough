@@ -153,10 +153,15 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
                     if (!isSeries) {
                         loadIntoListView(s, isSeries);
                     }else {
-                        JSONObject jsonObject = new JSONObject(s);
-                        System.out.println(jsonObject.getString("Title"));
-                        movies.add(new Movie(jsonObject.getString("Title"), jsonObject.getString("Poster"), null));
-                    }
+                        try {
+                            JSONObject jsonObject = new JSONObject(s);
+                            System.out.println(jsonObject.getString("Title"));
+                            movies.add(new Movie(jsonObject.getString("Title"), jsonObject.getString("Poster"), null));
+
+                        }catch (Exception e){
+                            // be tokhmam
+                        }
+                      }
                     //Toast.makeText(getApplicationContext(), s, Toast.LENGTH_LONG).show();
                 } catch (JSONException e) {
                     e.printStackTrace();
