@@ -36,6 +36,8 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity implements SwipeRefreshLayout.OnRefreshListener {
@@ -48,23 +50,9 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        permissionStuff();
+       // permissionStuff();
         setContentView(R.layout.activity_main);
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    Document document = Jsoup.connect("http://dl2.persian2movie.com/Ali/Serial").get();
-                    for (Element file : document.select("a")) {
-                        System.out.println(file.text());
-                    }
-                    System.out.println(document.title());
 
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-        }).start();
 
 
         movierecview = findViewById(R.id.movierecview);
@@ -179,9 +167,27 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
         if (!file.mkdirs()) {
             file.mkdirs();
         }*/
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    ArrayList<String> seriesName = new ArrayList<>();
+                    Document document = Jsoup.connect("http://dl2.persian2movie.com/Ali/Serial").get();
+                    for (Element file : document.select("a")) {
+                        Collections.addAll(seriesName , file.text().split("/"));
+                    }
+                    for (String sName : seriesName) {
+                        Document doc = Jsoup.connect("http://www.omdbapi.com/?t=" + sName+"&apikey=8f300fc8").get();
+                        System.out.println(doc.body());
+                    }
+
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }).start();
         System.out.println(Movies.get(0).getVidurl());
-        askForPermission(Manifest.permission.READ_EXTERNAL_STORAGE, READ_EXST);
-        File directory = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
+       File directory = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
 
 
         Log.v("Files", directory.exists() + "");
