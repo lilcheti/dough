@@ -156,7 +156,7 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
                         try {
                             JSONObject jsonObject = new JSONObject(s);
                             System.out.println(jsonObject.getString("Title"));
-                            movies.add(new Movie(jsonObject.getString("Title"), jsonObject.getString("Poster"), null));
+                            movies.add(new Series(jsonObject.getString("Title"), jsonObject.getString("Poster"), null));
 
                         }catch (Exception e){
                             // be tokhmam
@@ -235,6 +235,8 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
         adapter.setMovie(movies);
         movierecview.setAdapter(adapter);
         movierecview.setLayoutManager(new GridLayoutManager(this, 3));
+        mSwipeRefreshLayout.setRefreshing(false);
+
     }
 
     public String filmName(String[] name) {
@@ -262,7 +264,7 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
 
     @Override
     public void onRefresh() {
-        downloadJSON("https://raw.githubusercontent.com/cppox/Dough/master/movies.json", false);
+        refreshList();
     }
 
 
