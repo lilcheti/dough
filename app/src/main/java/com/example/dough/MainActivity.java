@@ -16,6 +16,7 @@ import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
+import android.util.JsonReader;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -46,15 +47,40 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
     private RecyclerView movierecview;
     private RecyclerView downloadedFilmRecylclerView;
     SwipeRefreshLayout mSwipeRefreshLayout;
+    ArrayList<Movie> movies = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-       // permissionStuff();
+        // permissionStuff();
         setContentView(R.layout.activity_main);
 
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    ArrayList<String> seriesName = new ArrayList<>();
+                    Document document = Jsoup.connect("http://dl2.persian2movie.com/Ali/Serial").get();
+                    for (Element file : document.select("a")) {
+                        Collections.addAll(seriesName, file.text().split("/"));
+                    }
+                    seriesName.remove(0);
+                    for (String sName : seriesName) {
+                        downloadJSON("http://www.omdbapi.com/?t=" + sName + "&apikey=8f300fc8", true);
+                        //System.out.println(doc.body());
+                    }
 
 
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }).start();
+        try {
+            Thread.sleep(10000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
         movierecview = findViewById(R.id.movierecview);
         downloadedFilmRecylclerView = findViewById(R.id.downloadedFilms);
 
@@ -75,7 +101,7 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
             public void run() {
 
                 mSwipeRefreshLayout.setRefreshing(true);
-                downloadJSON("https://raw.githubusercontent.com/cppox/Dough/master/movies.json");
+                downloadJSON("https://raw.githubusercontent.com/cppox/Dough/master/movies.json", false);
                 // Fetching data from server
             }
         });
@@ -108,7 +134,7 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
                 .check();
     }
 
-    private void downloadJSON(final String urlWebService) {
+    private void downloadJSON(final String urlWebService, final boolean isSeries) {
 
         class DownloadJSON extends AsyncTask<Void, Void, String> {
 
@@ -124,7 +150,13 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
                 super.onPostExecute(s);
 
                 try {
-                    loadIntoListView(s);
+                    if (!isSeries) {
+                        loadIntoListView(s, isSeries);
+                    }else {
+                        JSONObject jsonObject = new JSONObject(s);
+                        System.out.println(jsonObject.getString("Title"));
+                        movies.add(new Movie(jsonObject.getString("Title"), jsonObject.getString("Poster"), null));
+                    }
                     //Toast.makeText(getApplicationContext(), s, Toast.LENGTH_LONG).show();
                 } catch (JSONException e) {
                     e.printStackTrace();
@@ -154,40 +186,23 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
     }
 
     @RequiresApi(api = Build.VERSION_CODES.M)
-    private void loadIntoListView(String json) throws JSONException {
-        JSONArray jsonArray = new JSONArray(json);
-        ArrayList<Movie> Movies = new ArrayList<>();
+    private void loadIntoListView(String json, boolean isSeries) throws JSONException {
 
-        for (int i = 0; i < jsonArray.length(); i++) {
-            JSONObject obj = jsonArray.getJSONObject(i);
-            Movies.add(new Movie(obj.getString("name"), obj.getString("image"), obj.getString("vidurl")));
-            //Toast.makeText(getApplicationContext(),"kk", Toast.LENGTH_SHORT).show();
-        }
+            JSONArray jsonArray = new JSONArray(json);
+            for (int i = 0; i < jsonArray.length(); i++) {
+                JSONObject obj = jsonArray.getJSONObject(i);
+                movies.add(new Movie(obj.getString("name"), obj.getString("image"), obj.getString("vidurl")));
+                //Toast.makeText(getApplicationContext(),"kk", Toast.LENGTH_SHORT).show();
+            }
+
+
         /*File file = new File(Environment.DIRECTORY_DOWNLOADS + "/folderName");
         if (!file.mkdirs()) {
             file.mkdirs();
         }*/
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    ArrayList<String> seriesName = new ArrayList<>();
-                    Document document = Jsoup.connect("http://dl2.persian2movie.com/Ali/Serial").get();
-                    for (Element file : document.select("a")) {
-                        Collections.addAll(seriesName , file.text().split("/"));
-                    }
-                    for (String sName : seriesName) {
-                        Document doc = Jsoup.connect("http://www.omdbapi.com/?t=" + sName+"&apikey=8f300fc8").get();
-                        System.out.println(doc.body());
-                    }
 
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-        }).start();
-        System.out.println(Movies.get(0).getVidurl());
-       File directory = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
+        System.out.println(movies.get(0).getVidurl());
+        File directory = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
 
 
         Log.v("Files", directory.exists() + "");
@@ -199,18 +214,22 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
             System.out.println(file.getName());
             String[] name = file.getName().split("\\.");
             String movieName = filmName(name);
-            Movie movie = findMovieByName(movieName, Movies);
+            Movie movie = findMovieByName(movieName, movies);
             movie.setMovieFile(file);
             downloadedMovies.add(movie);
         }
-        MovieRecViewAdapter adapter = new MovieRecViewAdapter(this);
-        adapter.setMovie(Movies);
-        movierecview.setAdapter(adapter);
-        movierecview.setLayoutManager(new GridLayoutManager(this, 3));
+        refreshList();
         DownloadedMoviesAdapter downloadedMoviesAdapter = new DownloadedMoviesAdapter(downloadedMovies, this);
         downloadedFilmRecylclerView.setAdapter(downloadedMoviesAdapter);
         downloadedFilmRecylclerView.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
         mSwipeRefreshLayout.setRefreshing(false);
+    }
+
+    private void refreshList() {
+        MovieRecViewAdapter adapter = new MovieRecViewAdapter(this);
+        adapter.setMovie(movies);
+        movierecview.setAdapter(adapter);
+        movierecview.setLayoutManager(new GridLayoutManager(this, 3));
     }
 
     public String filmName(String[] name) {
@@ -220,7 +239,7 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
                 return movieName;
             else {
                 if (name[i + 1].equals("mkv"))
-                    movieName += name[i] ;
+                    movieName += name[i];
                 else movieName += name[i] + " ";
             }
         }
@@ -238,7 +257,7 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
 
     @Override
     public void onRefresh() {
-        downloadJSON("https://raw.githubusercontent.com/cppox/Dough/master/movies.json");
+        downloadJSON("https://raw.githubusercontent.com/cppox/Dough/master/movies.json", false);
     }
 
 
