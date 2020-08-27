@@ -60,7 +60,7 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
             public void run() {
                 try {
                     ArrayList<String> seriesName = new ArrayList<>();
-                    Document document = Jsoup.connect("http://dl2.persian2movie.com/Ali/Serial").get();
+                    Document document = Jsoup.connect("http://dl2.persian2movie.com/mahdip/Series").get();
                     for (Element file : document.select("a")) {
                         Collections.addAll(seriesName, file.text().split("/"));
                     }
@@ -77,7 +77,7 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
             }
         }).start();
         try {
-            Thread.sleep(10000);
+           Thread.sleep(10000);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
