@@ -69,7 +69,7 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
                         downloadJSON("http://www.omdbapi.com/?t=" + sName + "&apikey=8f300fc8", true);
                         //System.out.println(doc.body());
                     }
-
+                    downloadJSON("https://raw.githubusercontent.com/cppox/Dough/master/movies.json", false);
 
                 } catch (IOException e) {
                     e.printStackTrace();
@@ -101,7 +101,7 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
             public void run() {
 
                 mSwipeRefreshLayout.setRefreshing(true);
-                downloadJSON("https://raw.githubusercontent.com/cppox/Dough/master/movies.json", false);
+
                 // Fetching data from server
             }
         });
