@@ -106,9 +106,14 @@ public class MovieRecViewAdapter extends RecyclerView.Adapter<MovieRecViewAdapte
 // get download service and enqueue file
                                     DownloadManager manager = (DownloadManager) context.getSystemService(Context.DOWNLOAD_SERVICE);
                                     manager.enqueue(request);
+
+
+
                                 }
                             }
                         }).start();
+                        Toast.makeText(context, "دانلود شما آغاز شد و به لیست دانلود ها در ابتدای صفحه اصافه میشود.", Toast.LENGTH_LONG).show();
+
 
                     }
                 });
