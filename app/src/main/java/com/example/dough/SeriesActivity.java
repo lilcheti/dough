@@ -25,6 +25,7 @@ public class SeriesActivity extends AppCompatActivity {
 
     String imgUrl;
     String seriesName;
+    Spinner dropdown;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -37,10 +38,10 @@ public class SeriesActivity extends AppCompatActivity {
                 .asBitmap()
                 .load(imgUrl)
                 .into(imageView);
-        TextView textView = findViewById(R.id.textView3);
+        final TextView textView = findViewById(R.id.textView3);
         textView.setText(seriesName);
         //get the spinner from the xml.
-        final Spinner dropdown = findViewById(R.id.spinner1);
+        dropdown = findViewById(R.id.spinner1);
 
 //create a list of items for the spinner.
         final ArrayList<String> items = new ArrayList<>();
@@ -49,14 +50,14 @@ public class SeriesActivity extends AppCompatActivity {
             public void run() {
                 ArrayList<String> sessions = new ArrayList<>();
                 Document document = null;
-                seriesName = seriesName.replaceAll(":" , "");
+                seriesName = seriesName.replaceAll(":", "");
                 try {
-                    document = Jsoup.connect("http://dl2.persian2movie.com/mahdip/Series/" + seriesName.replaceAll(" " , "\\.") +"/" ).get();
+                    document = Jsoup.connect("http://dl2.persian2movie.com/mahdip/Series/" + seriesName.replaceAll(" ", "\\.") + "/").get();
                     for (Element file : document.select("a")) {
                         Collections.addAll(sessions, file.text().split("/"));
                     }
                     sessions.remove(0);
-                    int i = 1 ;
+                    int i = 1;
                     for (String session : sessions) {
                         items.add(String.valueOf(i));
                         System.out.println(session + i);
@@ -68,11 +69,12 @@ public class SeriesActivity extends AppCompatActivity {
 
             }
         }).start();
-
-//create an adapter to describe how the items are displayed, adapters are used in several places in android.
-//There are multiple variations of this, but this is the basic variant.
-        final ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item, items);
-//set the spinners adapter to the previously created one.
+        try {
+            Thread.sleep(1000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item, items);
         adapter.setDropDownViewResource(R.layout.support_simple_spinner_dropdown_item);
 
         dropdown.setAdapter(adapter);
@@ -83,8 +85,8 @@ public class SeriesActivity extends AppCompatActivity {
         dropdown.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
-                adapter.notifyDataSetChanged();
-
+                //adapter.notifyDataSetChanged();
+                textView.setText("salam");
                 System.out.println(i);
             }
 

@@ -35,6 +35,8 @@
         android:layout_marginStart="288dp"
         android:layout_marginTop="192dp"
         android:background="@android:drawable/btn_dropdown"
+        android:clickable="true"
+        android:focusable="auto"
         android:spinnerMode="dropdown"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
