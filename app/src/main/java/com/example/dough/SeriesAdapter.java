@@ -22,9 +22,9 @@ public class SeriesAdapter extends RecyclerView.Adapter<SeriesAdapter.ViewHolder
     private LayoutInflater inflater;
     private Context context;
 
-    public SeriesAdapter(ArrayList<Episode> episodes, LayoutInflater inflater, Context context) {
+    public SeriesAdapter(ArrayList<Episode> episodes,  Context context) {
         this.episodes = episodes;
-        this.inflater = inflater;
+        this.inflater = LayoutInflater.from(context) ;
         this.context = context;
     }
 

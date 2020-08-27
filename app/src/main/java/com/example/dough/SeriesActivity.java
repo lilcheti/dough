@@ -1,6 +1,8 @@
 package com.example.dough;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.GridLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import android.os.Bundle;
 import android.view.View;
@@ -26,6 +28,7 @@ public class SeriesActivity extends AppCompatActivity {
     String imgUrl;
     String seriesName;
     Spinner dropdown;
+    RecyclerView seriesRecView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -40,10 +43,65 @@ public class SeriesActivity extends AppCompatActivity {
                 .into(imageView);
         final TextView textView = findViewById(R.id.textView3);
         textView.setText(seriesName);
-        //get the spinner from the xml.
         dropdown = findViewById(R.id.spinner1);
+        setSpinner();
+        dropdown.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> adapterView, View view, final int i, long l) {
+                final ArrayList<Episode> episodes = new ArrayList<Episode>();
+                final ArrayList<String> episodesDescription = new ArrayList<>();
+               seriesName = seriesName.replaceAll(":", "");
+                new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        String url;
 
-//create a list of items for the spinner.
+                        if (i < 9) {
+                            url = "http://dl2.persian2movie.com/mahdip/Series/" + seriesName.replaceAll(" ", "\\.") + "/S0" + (i+1);
+                        } else {
+                            url = "http://dl2.persian2movie.com/mahdip/Series/" + seriesName.replaceAll(" ", "\\.") + "/S" + String.valueOf(i+1);
+                        }
+                        Document document = null;
+
+                        try {
+                            document = Jsoup.connect(url).get();
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+
+                        for (Element file : document.select("a")) {
+                            Collections.addAll(episodesDescription, file.attr("href").split("/"));
+                        }
+                        episodesDescription.remove(0);
+                        for (int j = 1 ; j <= episodesDescription.size() ; j++ ) {
+                            System.out.println(url+"/" + episodesDescription.get(j-1).replaceAll(" " , "\\."));
+                            episodes.add(new Episode("S" + (i+1) + "E" + j , imgUrl , url+"/" + episodesDescription.get(j-1).replaceAll(" " , "\\.")) );
+                        }
+                  }
+                }).start();
+                try {
+                    Thread.sleep(2000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+                seriesRecView = findViewById(R.id.seriesRecView);
+                SeriesAdapter adapter = new SeriesAdapter(episodes , SeriesActivity.this);
+                seriesRecView.setAdapter(adapter);
+                seriesRecView.setLayoutManager(new GridLayoutManager(SeriesActivity.this, 1));
+
+
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> adapterView) {
+
+            }
+
+        });
+
+    }
+
+    private void setSpinner() {
         final ArrayList<String> items = new ArrayList<>();
         new Thread(new Runnable() {
             @Override
@@ -81,22 +139,6 @@ public class SeriesActivity extends AppCompatActivity {
         adapter.notifyDataSetChanged();
 
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-
-        dropdown.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-            @Override
-            public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
-                //adapter.notifyDataSetChanged();
-                textView.setText("salam");
-                System.out.println(i);
-            }
-
-            @Override
-            public void onNothingSelected(AdapterView<?> adapterView) {
-                System.out.println("sa;a,");
-            }
-
-        });
-
     }
 
 }
