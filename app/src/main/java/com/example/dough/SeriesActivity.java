@@ -65,9 +65,9 @@ public class SeriesActivity extends AppCompatActivity {
                         String url;
 
                         if (i < 9) {
-                            url = "http://dl2.persian2movie.com/mahdip/Series/" + seriesName.replaceAll(" ", "\\.") + "/S0" + (i+1);
+                            url = "http://dl1.3rver.org/hex1/Series/" + seriesName.replaceAll(" ", "\\.") + "/S0" + (i+1);
                         } else {
-                            url = "http://dl2.persian2movie.com/mahdip/Series/" + seriesName.replaceAll(" ", "\\.") + "/S" + String.valueOf(i+1);
+                            url = "http://dl1.3rver.org/hex1/Series/" + seriesName.replaceAll(" ", "\\.") + "/S" + String.valueOf(i+1);
                         }
                         Document document = null;
 
@@ -131,7 +131,7 @@ public class SeriesActivity extends AppCompatActivity {
                 Document document = null;
                 seriesName = seriesName.replaceAll(":", "");
                 try {
-                    document = Jsoup.connect("http://dl2.persian2movie.com/mahdip/Series/" + seriesName.replaceAll(" ", "\\.") + "/").get();
+                    document = Jsoup.connect("http://dl1.3rver.org/hex1/Series/" + seriesName.replaceAll(" ", "\\.") + "/").get();
                     for (Element file : document.select("a")) {
                         Collections.addAll(sessions, file.text().split("/"));
                     }
