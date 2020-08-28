@@ -54,10 +54,39 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
         super.onCreate(savedInstanceState);
         // permissionStuff();
         setContentView(R.layout.activity_main);
+        class Load extends AsyncTask<Void, Void, Void> {
 
-        new Thread(new Runnable() {
             @Override
-            public void run() {
+            protected void onPreExecute() {
+                super.onPreExecute();
+                mSwipeRefreshLayout = (SwipeRefreshLayout) findViewById(R.id.refresh);
+                mSwipeRefreshLayout.setOnRefreshListener(MainActivity.this);
+                mSwipeRefreshLayout.setColorSchemeResources(R.color.colorPrimary,
+                        android.R.color.holo_green_dark,
+                        android.R.color.holo_orange_dark,
+                        android.R.color.holo_blue_dark);
+
+                /**
+                 * Showing Swipe Refresh animation on activity create
+                 * As animation won't start on onCreate, post runnable is used
+                 */
+                mSwipeRefreshLayout.post(new Runnable() {
+
+                    @Override
+                    public void run() {
+
+                        mSwipeRefreshLayout.setRefreshing(true);
+
+                        // Fetching data from server
+                    }
+                });
+            }
+            @Override
+            protected Void doInBackground(Void... voids) {
+                movierecview = findViewById(R.id.movierecview);
+                downloadedFilmRecylclerView = findViewById(R.id.downloadedFilms);
+
+
                 try {
                     ArrayList<String> seriesName = new ArrayList<>();
                     Document document = Jsoup.connect("http://dl2.persian2movie.com/mahdip/Series").get();
@@ -74,37 +103,14 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
+                return null;
             }
-        }).start();
-        try {
-           Thread.sleep(5000);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
+
         }
-        movierecview = findViewById(R.id.movierecview);
-        downloadedFilmRecylclerView = findViewById(R.id.downloadedFilms);
+        Load kk = new Load();
+        kk.execute();
 
-        mSwipeRefreshLayout = (SwipeRefreshLayout) findViewById(R.id.refresh);
-        mSwipeRefreshLayout.setOnRefreshListener(this);
-        mSwipeRefreshLayout.setColorSchemeResources(R.color.colorPrimary,
-                android.R.color.holo_green_dark,
-                android.R.color.holo_orange_dark,
-                android.R.color.holo_blue_dark);
 
-        /**
-         * Showing Swipe Refresh animation on activity create
-         * As animation won't start on onCreate, post runnable is used
-         */
-        mSwipeRefreshLayout.post(new Runnable() {
-
-            @Override
-            public void run() {
-
-                mSwipeRefreshLayout.setRefreshing(true);
-
-                // Fetching data from server
-            }
-        });
     }
 
     private void permissionStuff() {

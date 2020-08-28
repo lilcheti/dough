@@ -4,6 +4,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.AdapterView;
@@ -51,9 +52,16 @@ public class SeriesActivity extends AppCompatActivity {
                 final ArrayList<Episode> episodes = new ArrayList<Episode>();
                 final ArrayList<String> episodesDescription = new ArrayList<>();
                seriesName = seriesName.replaceAll(":", "");
-                new Thread(new Runnable() {
+                class Load extends AsyncTask<Void, Void, Boolean> {
+
                     @Override
-                    public void run() {
+                    protected void onPreExecute() {
+                        super.onPreExecute();
+
+                    }
+
+                    @Override
+                    protected Boolean doInBackground(Void... voids) {
                         String url;
 
                         if (i < 9) {
@@ -77,17 +85,23 @@ public class SeriesActivity extends AppCompatActivity {
                             System.out.println(url+"/" + episodesDescription.get(j-1).replaceAll(" " , "\\."));
                             episodes.add(new Episode("S" + (i+1) + "E" + j , imgUrl , url+"/" + episodesDescription.get(j-1).replaceAll(" " , "\\.")) );
                         }
-                  }
-                }).start();
-                try {
-                    Thread.sleep(2000);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
+                        return null;
+                    }
+                    @Override
+                    protected void onPostExecute(Boolean s) {
+                        super.onPostExecute(s);
+                        seriesRecView = findViewById(R.id.seriesRecView);
+                        SeriesAdapter adapter = new SeriesAdapter(episodes , SeriesActivity.this);
+                        seriesRecView.setAdapter(adapter);
+                        seriesRecView.setLayoutManager(new GridLayoutManager(SeriesActivity.this, 1));
+
+                    }
                 }
-                seriesRecView = findViewById(R.id.seriesRecView);
-                SeriesAdapter adapter = new SeriesAdapter(episodes , SeriesActivity.this);
-                seriesRecView.setAdapter(adapter);
-                seriesRecView.setLayoutManager(new GridLayoutManager(SeriesActivity.this, 1));
+                Load kk = new Load();
+                kk.execute();
+
+
+
 
 
             }
@@ -102,10 +116,17 @@ public class SeriesActivity extends AppCompatActivity {
     }
 
     private void setSpinner() {
-        final ArrayList<String> items = new ArrayList<>();
-        new Thread(new Runnable() {
+       // final ArrayList<String> items = new ArrayList<>();
+        class spinna extends AsyncTask<Void, Void, ArrayList<String>> {
+
             @Override
-            public void run() {
+            protected void onPreExecute() {
+                super.onPreExecute();
+            }
+
+            @Override
+            protected ArrayList<String> doInBackground(Void... voids) {
+                ArrayList<String> items = new ArrayList<>();
                 ArrayList<String> sessions = new ArrayList<>();
                 Document document = null;
                 seriesName = seriesName.replaceAll(":", "");
@@ -121,24 +142,29 @@ public class SeriesActivity extends AppCompatActivity {
                         System.out.println(session + i);
                         i++;
                     }
+                    return items;
                 } catch (IOException e) {
                     e.printStackTrace();
+                    return null;
                 }
 
             }
-        }).start();
-        try {
-            Thread.sleep(1000);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
+            @Override
+            protected void onPostExecute(ArrayList<String> items) {
+                super.onPostExecute(items);
+                ArrayAdapter<String> adapter = new ArrayAdapter<String>(SeriesActivity.this, android.R.layout.simple_spinner_dropdown_item, items);
+                adapter.setDropDownViewResource(R.layout.support_simple_spinner_dropdown_item);
+
+                dropdown.setAdapter(adapter);
+                adapter.notifyDataSetChanged();
+
+                adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+            }
         }
-        ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item, items);
-        adapter.setDropDownViewResource(R.layout.support_simple_spinner_dropdown_item);
+        spinna kkkk = new spinna();
+        kkkk.execute();
 
-        dropdown.setAdapter(adapter);
-        adapter.notifyDataSetChanged();
 
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
     }
 
 }
