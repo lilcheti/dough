@@ -48,20 +48,20 @@ public class MovieRecViewAdapter extends RecyclerView.Adapter<MovieRecViewAdapte
         holder.parent.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if (! (movie.get(position) instanceof Series)) {
+
                     moviePlayerStuff(view, position);
-                }else {
+                /*else {
                     Intent intent = new Intent(view.getContext(), SeriesActivity.class);
-                    intent.putExtra("imgurl", movie.get(position).getImageUrl());
+                    intent.putExtra("imgurl", movie.get(position).getImgURL());
                     intent.putExtra("seriesName", movie.get(position).getName());
                     view.getContext().startActivity(intent);
-                }
+                }*/
             }
         });
 
         Glide.with(context)
                 .asBitmap()
-                .load(movie.get(position).getImageUrl())
+                .load(movie.get(position).getImgURL())
                 .into(holder.image);
     }
 
@@ -81,7 +81,7 @@ public class MovieRecViewAdapter extends RecyclerView.Adapter<MovieRecViewAdapte
         ImageView imageView = popupView.findViewById(R.id.imageView);
         Glide.with(context)
                 .asBitmap()
-                .load(movie.get(position).getImageUrl())
+                .load(movie.get(position).getImgURL())
                 .into(imageView);
         ImageButton playButton = popupView.findViewById(R.id.imageButton);
         playButton.setOnClickListener(new View.OnClickListener() {
@@ -89,7 +89,7 @@ public class MovieRecViewAdapter extends RecyclerView.Adapter<MovieRecViewAdapte
             public void onClick(View view) {
                 Toast.makeText(context, movie.get(position).getName(), Toast.LENGTH_SHORT).show();
                 Intent intent = new Intent(view.getContext(), Playmovie.class);
-                intent.putExtra("vidurl", movie.get(position).getVidurl());
+                intent.putExtra("vidurl", movie.get(position).getVidURL());
                 intent.putExtra("inLocal", "download");
                 view.getContext().startActivity(intent);
             }
@@ -110,7 +110,7 @@ public class MovieRecViewAdapter extends RecyclerView.Adapter<MovieRecViewAdapte
                     @Override
                     public void run() {
                         if (isDownloadManagerAvailable(context)) {
-                            String url = movie.get(position).getVidurl();
+                            String url = movie.get(position).getVidURL();
                             DownloadManager.Request request = new DownloadManager.Request(Uri.parse(url));
                             request.setDescription("در حال دانلود...");
                             request.setTitle(movie.get(position).getName());

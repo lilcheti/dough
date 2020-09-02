@@ -10,35 +10,35 @@ import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import android.Manifest;
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
-import android.util.JsonReader;
 import android.util.Log;
 import android.widget.Toast;
 
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import com.gun0912.tedpermission.PermissionListener;
 import com.gun0912.tedpermission.TedPermission;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.jsoup.Jsoup;
-import org.jsoup.nodes.Document;
-import org.jsoup.nodes.Element;
 
 import java.io.BufferedReader;
 import java.io.File;
-import java.io.IOException;
+import java.io.FileWriter;
 import java.io.InputStreamReader;
+import java.lang.reflect.Type;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity implements SwipeRefreshLayout.OnRefreshListener {
@@ -54,7 +54,22 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
         super.onCreate(savedInstanceState);
         // permissionStuff();
         setContentView(R.layout.activity_main);
-        class Load extends AsyncTask<Void, Void, Void> {
+
+
+        movierecview = findViewById(R.id.movierecview);
+        downloadedFilmRecylclerView = findViewById(R.id.downloadedFilms);
+        downloadJSON("https://raw.githubusercontent.com/rimthekid/Dough-mas/master/output2.json", false);
+
+
+
+
+    }
+
+
+
+    private void downloadJSON(final String urlWebService, final boolean isSeries) {
+        final StringBuilder l20 = new StringBuilder();
+        class DownloadJSON extends AsyncTask<Void, Void, String> {
 
             @Override
             protected void onPreExecute() {
@@ -81,73 +96,6 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
                     }
                 });
             }
-            @Override
-            protected Void doInBackground(Void... voids) {
-                movierecview = findViewById(R.id.movierecview);
-                downloadedFilmRecylclerView = findViewById(R.id.downloadedFilms);
-
-
-                try {
-                    ArrayList<String> seriesName = new ArrayList<>();
-                    Document document = Jsoup.connect("http://dl1.3rver.org/hex1/Series/").get();
-                    for (Element file : document.select("a")) {
-                        Collections.addAll(seriesName, file.text().split("/"));
-                    }
-                    seriesName.remove(0);
-                    for (String sName : seriesName) {
-                        downloadJSON("http://www.omdbapi.com/?t=" + sName + "&apikey=8f300fc8", true);
-                        //System.out.println(doc.body());
-                    }
-                    downloadJSON("https://raw.githubusercontent.com/cppox/Dough/master/movies.json", false);
-
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-                return null;
-            }
-
-        }
-        Load kk = new Load();
-        kk.execute();
-
-
-    }
-
-    private void permissionStuff() {
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, 1);
-        }
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, 1);
-        }
-        PermissionListener permissionlistener = new PermissionListener() {
-            @Override
-            public void onPermissionGranted() {
-                Toast.makeText(MainActivity.this, "Permission Granted", Toast.LENGTH_SHORT).show();
-            }
-
-            @Override
-            public void onPermissionDenied(List<String> deniedPermissions) {
-                Toast.makeText(MainActivity.this, "Permission Denied\n" + deniedPermissions.toString(), Toast.LENGTH_SHORT).show();
-            }
-
-
-        };
-        TedPermission.with(this)
-                .setPermissionListener(permissionlistener)
-                .setDeniedMessage("If you reject permission,you can not use this service\n\nPlease turn on permissions at [Setting] > [Permission]")
-                .setPermissions(Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.READ_EXTERNAL_STORAGE)
-                .check();
-    }
-
-    private void downloadJSON(final String urlWebService, final boolean isSeries) {
-
-        class DownloadJSON extends AsyncTask<Void, Void, String> {
-
-            @Override
-            protected void onPreExecute() {
-                super.onPreExecute();
-            }
 
 
             @RequiresApi(api = Build.VERSION_CODES.M)
@@ -155,29 +103,31 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
             protected void onPostExecute(String s) {
                 super.onPostExecute(s);
 
-                try {
-                    if (!isSeries) {
-                        loadIntoListView(s, isSeries);
+
+                    if (isSeries) {
+                        try {
+                            loadIntoListView(l20.toString().trim(),true);
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                        writeFileOnInternalStorage(MainActivity.this,"seriesJson.json",s);
                     }else {
                         try {
-                            JSONObject jsonObject = new JSONObject(s);
-                            System.out.println(jsonObject.getString("Title"));
-                            movies.add(new Series(jsonObject.getString("Title"), jsonObject.getString("Poster"), null));
-
-                        }catch (Exception e){
-                            // be tokhmam
+                            loadIntoListView(l20.toString().trim(),false);
+                        } catch (JSONException e) {
+                            e.printStackTrace();
                         }
+
+                        writeFileOnInternalStorage(MainActivity.this,"moviesJson.json",s);
                       }
                     //Toast.makeText(getApplicationContext(), s, Toast.LENGTH_LONG).show();
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                    System.out.println(s);
-                }
+
             }
 
             @Override
             protected String doInBackground(Void... voids) {
                 try {
+                    int i=0;
                     URL url = new URL(urlWebService);
                     HttpURLConnection con = (HttpURLConnection) url.openConnection();
                     StringBuilder sb = new StringBuilder();
@@ -185,6 +135,10 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
                     String json;
                     while ((json = bufferedReader.readLine()) != null) {
                         sb.append(json + "\n");
+                        i++;
+                        if (i<11){
+                            l20.append(json+"\n");
+                        }
                     }
                     return sb.toString().trim();
                 } catch (Exception e) {
@@ -196,14 +150,21 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
         getJSON.execute();
     }
 
-    @RequiresApi(api = Build.VERSION_CODES.M)
-    private void loadIntoListView(String json, boolean isSeries) throws JSONException {
 
-            JSONArray jsonArray = new JSONArray(json);
-            for (int i = 0; i < jsonArray.length(); i++) {
-                JSONObject obj = jsonArray.getJSONObject(i);
-                movies.add(new Movie(obj.getString("name"), obj.getString("image"), obj.getString("vidurl")));
+    private void loadIntoListView(String json, boolean isSeries) throws JSONException {
+            if (!isSeries){
+                Gson gson = new Gson();
+                Type collectionType = new TypeToken<Collection<Movie>>(){}.getType();
+                Collection<Movie> moviezz = gson.fromJson(json, collectionType);
+                movies.addAll(moviezz);
+                System.out.println(movies.get(2).getImgURL());
+                System.out.println("kir");
+                refreshList();
                 //Toast.makeText(getApplicationContext(),"kk", Toast.LENGTH_SHORT).show();
+            }else
+            {
+                Gson gson = new Gson();
+                gson.fromJson(json, Series.class);
             }
 
 
@@ -212,8 +173,8 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
             file.mkdirs();
         }*/
 
-        System.out.println(movies.get(0).getVidurl());
-        File directory = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
+        //System.out.println(movies.get(0).getVidurl());
+       /* File directory = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
 
 
         Log.v("Files", directory.exists() + "");
@@ -233,7 +194,7 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
         DownloadedMoviesAdapter downloadedMoviesAdapter = new DownloadedMoviesAdapter(downloadedMovies, this);
         downloadedFilmRecylclerView.setAdapter(downloadedMoviesAdapter);
         downloadedFilmRecylclerView.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
-        mSwipeRefreshLayout.setRefreshing(false);
+        */mSwipeRefreshLayout.setRefreshing(false);
     }
 
     private void refreshList() {
@@ -296,5 +257,21 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
         ActivityCompat.requestPermissions(MainActivity.this, new String[]{permission}, requestCode);
     }
 
+    public void writeFileOnInternalStorage(Context mcoContext, String sFileName, String sBody){
+        File dir = new File(mcoContext.getFilesDir(), "json");
+        if(!dir.exists()){
+            dir.mkdir();
+        }
+
+        try {
+            File gpxfile = new File(dir, sFileName);
+            FileWriter writer = new FileWriter(gpxfile);
+            writer.append(sBody);
+            writer.flush();
+            writer.close();
+        } catch (Exception e){
+            e.printStackTrace();
+        }
+    }
 
 }

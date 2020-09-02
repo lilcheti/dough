@@ -40,14 +40,14 @@ public class SeriesAdapter extends RecyclerView.Adapter<SeriesAdapter.ViewHolder
 
         Glide.with(context)
                 .asBitmap()
-                .load(episodes.get(position).getImageUrl())
+                .load(episodes.get(position).getImgURL())
                 .into(holder.imageView);
         holder.imageView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 Toast.makeText(context, episodes.get(position).getName(), Toast.LENGTH_SHORT).show();
                 Intent intent = new Intent(view.getContext(), Playmovie.class);
-                intent.putExtra("vidurl", episodes.get(position).getVidurl());
+                intent.putExtra("vidurl", episodes.get(position).getVidURL());
                 intent.putExtra("inLocal", "download");
                 view.getContext().startActivity(intent);
             }

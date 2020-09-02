@@ -38,7 +38,7 @@ public class DownloadedMoviesAdapter extends RecyclerView.Adapter<DownloadedMovi
     public void onBindViewHolder(@NonNull ViewHolder holder, final int position) {
         Glide.with(context)
                 .asBitmap()
-                .load(dlMovies.get(position).getImageUrl())
+                .load(dlMovies.get(position).getImgURL())
                 .into(holder.imageView);
         holder.imageView.setOnClickListener(new View.OnClickListener() {
             @Override
