@@ -44,10 +44,11 @@ import java.util.List;
 public class MainActivity extends AppCompatActivity implements SwipeRefreshLayout.OnRefreshListener {
     private static final int MY_PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE = 2;
     static final Integer READ_EXST = 0x4;
-    private RecyclerView movierecview;
+    private RecyclerView movierecview,seriesrecview;
     private RecyclerView downloadedFilmRecylclerView;
     SwipeRefreshLayout mSwipeRefreshLayout;
     ArrayList<Movie> movies = new ArrayList<>();
+    ArrayList<Series> series = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -57,8 +58,11 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
 
 
         movierecview = findViewById(R.id.movierecview);
+        seriesrecview =findViewById(R.id.seriesrecview);
         downloadedFilmRecylclerView = findViewById(R.id.downloadedFilms);
         downloadJSON("https://raw.githubusercontent.com/rimthekid/Dough-mas/master/output2.json", false);
+        downloadJSON("https://raw.githubusercontent.com/rimthekid/Dough-mas/master/series.json",true);
+        refreshList();
 
 
 
@@ -159,12 +163,16 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
                 movies.addAll(moviezz);
                 System.out.println(movies.get(2).getImgURL());
                 System.out.println("kir");
-                refreshList();
+
                 //Toast.makeText(getApplicationContext(),"kk", Toast.LENGTH_SHORT).show();
             }else
             {
                 Gson gson = new Gson();
-                gson.fromJson(json, Series.class);
+                Type collectionType = new TypeToken<Collection<Series>>(){}.getType();
+                Collection<Series> seriezz = gson.fromJson(json, collectionType);
+                series.addAll(seriezz);
+                System.out.println(series.get(2).getImgURL());
+                System.out.println("kos");
             }
 
 
@@ -174,7 +182,7 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
         }*/
 
         //System.out.println(movies.get(0).getVidurl());
-       /* File directory = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
+       File directory = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
 
 
         Log.v("Files", directory.exists() + "");
@@ -187,14 +195,15 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
             String[] name = file.getName().split("\\.");
             String movieName = filmName(name);
             Movie movie = findMovieByName(movieName, movies);
+            if (movie != null){
             movie.setMovieFile(file);
-            downloadedMovies.add(movie);
+            downloadedMovies.add(movie);}
         }
         refreshList();
         DownloadedMoviesAdapter downloadedMoviesAdapter = new DownloadedMoviesAdapter(downloadedMovies, this);
         downloadedFilmRecylclerView.setAdapter(downloadedMoviesAdapter);
         downloadedFilmRecylclerView.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
-        */mSwipeRefreshLayout.setRefreshing(false);
+        mSwipeRefreshLayout.setRefreshing(false);
     }
 
     private void refreshList() {
@@ -202,6 +211,10 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
         adapter.setMovie(movies);
         movierecview.setAdapter(adapter);
         movierecview.setLayoutManager(new GridLayoutManager(this, 3));
+        SeriesRecViewAdapter adapterr = new SeriesRecViewAdapter(this);
+        adapterr.setSeries(series);
+        seriesrecview.setAdapter(adapterr);
+        seriesrecview.setLayoutManager(new GridLayoutManager(this, 3));
         mSwipeRefreshLayout.setRefreshing(false);
 
     }
