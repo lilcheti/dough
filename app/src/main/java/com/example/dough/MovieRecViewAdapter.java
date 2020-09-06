@@ -23,6 +23,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
 
+import java.io.File;
 import java.util.ArrayList;
 
 public class MovieRecViewAdapter extends RecyclerView.Adapter<MovieRecViewAdapter.ViewHolder> {
@@ -49,7 +50,7 @@ public class MovieRecViewAdapter extends RecyclerView.Adapter<MovieRecViewAdapte
             @Override
             public void onClick(View view) {
 
-                    moviePlayerStuff(view, position);
+                moviePlayerStuff(view, position);
                 /*else {
                     Intent intent = new Intent(view.getContext(), SeriesActivity.class);
                     intent.putExtra("imgurl", movie.get(position).getImgURL());
@@ -119,7 +120,9 @@ public class MovieRecViewAdapter extends RecyclerView.Adapter<MovieRecViewAdapte
                                 request.allowScanningByMediaScanner();
                                 request.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED);
                             }
-                            request.setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS, movie.get(position).getName() + ".mkv");
+                            File dir = new File(Environment.DIRECTORY_DOWNLOADS , "Dough");
+
+                            request.setDestinationInExternalPublicDir(dir.getAbsolutePath(), movie.get(position).getName() + ".mkv");
 
 // get download service and enqueue file
                             DownloadManager manager = (DownloadManager) context.getSystemService(Context.DOWNLOAD_SERVICE);

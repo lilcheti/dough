@@ -25,9 +25,9 @@
         />
 
     <ImageButton
+        android:id="@+id/dlSeriesButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:src="@android:drawable/stat_sys_download"
-        />
+        android:src="@android:drawable/stat_sys_download" />
 
 </LinearLayout>
