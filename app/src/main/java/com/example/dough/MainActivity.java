@@ -78,7 +78,6 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
         downloadJSON("https://raw.githubusercontent.com/rimthekid/Dough-mas/master/series.json", true);
 
 
-
     }
 
 
@@ -122,14 +121,14 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
                 if (isSeries) {
                     try {
                         loadIntoListView(l20.toString().trim(), true);
-                    } catch (JSONException e) {
+                    } catch (JSONException | FileNotFoundException e) {
                         e.printStackTrace();
                     }
                     writeFileOnInternalStorage(MainActivity.this, "seriesJson.json", s);
                 } else {
                     try {
                         loadIntoListView(l20.toString().trim(), false);
-                    } catch (JSONException e) {
+                    } catch (JSONException | FileNotFoundException e) {
                         e.printStackTrace();
                     }
 
@@ -166,7 +165,7 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
     }
 
 
-    private void loadIntoListView(String json, boolean isSeries) throws JSONException {
+    private void loadIntoListView(String json, boolean isSeries) throws JSONException, FileNotFoundException {
         if (!isSeries) {
             Gson gson = new Gson();
             Type collectionType = new TypeToken<Collection<Movie>>() {
@@ -200,7 +199,8 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
         }*/
 
         //System.out.println(movies.get(0).getVidurl());
-        File fileTMP = new File(Environment.DIRECTORY_DOWNLOADS + "Dough");
+        System.out.println(Environment.DIRECTORY_DOWNLOADS);
+        File fileTMP = new File(Environment.DIRECTORY_DOWNLOADS , "Dough");
         File directory = Environment.getExternalStoragePublicDirectory(fileTMP.getAbsolutePath());
 
 
@@ -214,22 +214,33 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
             System.out.println(file.getName());
             String[] name = file.getName().split("\\.");
             String movieName = filmName(name);
-            Movie movie = findMovieByName(movieName, movies);
+            File dir = new File(MainActivity.this.getFilesDir(), "json");
+
+            File seriesJson = new File(dir, "seriesJson.json");
+            File moviesJson = new File(dir, "moviesJson.json");
+            FileReader movieReader = new FileReader(moviesJson);
+            FileReader seriesReader = new FileReader(seriesJson);
+            Gson gson = new Gson();
+            ArrayList<Movie> movies = gson.fromJson(movieReader, new TypeToken<ArrayList<Movie>>() {
+            }.getType());
+            ArrayList<Series> series = gson.fromJson(seriesReader, new TypeToken<ArrayList<Series>>() {
+            }.getType());
+            Movie movie = findMovieByName(movieName, movies , series);
             if (movie != null) {
                 movie.setMovieFile(file);
                 downloadedMovies.add(movie);
             }
         }
-        refreshList(movies , series);
+        refreshList(movies, series);
         DownloadedMoviesAdapter downloadedMoviesAdapter = new DownloadedMoviesAdapter(downloadedMovies, this);
         downloadedFilmRecylclerView.setAdapter(downloadedMoviesAdapter);
         downloadedFilmRecylclerView.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
         mSwipeRefreshLayout.setRefreshing(false);
-        refreshList(movies , series);
+        refreshList(movies, series);
         search();
     }
 
-    private void refreshList(ArrayList<Movie> movieArrayList , ArrayList<Series> seriesArrayList) {
+    private void refreshList(ArrayList<Movie> movieArrayList, ArrayList<Series> seriesArrayList) {
         MovieRecViewAdapter adapter = new MovieRecViewAdapter(this);
         adapter.setMovie(movieArrayList);
         movierecview.setAdapter(adapter);
@@ -256,10 +267,20 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
         return null;
     }
 
-    public Movie findMovieByName(String name, ArrayList<Movie> Movies) {
-        for (Movie movie : Movies) {
-            if (movie.getName().equals(name))
+    public Movie findMovieByName(String name, ArrayList<Movie> movies ,ArrayList<Series> seriesArrayList) {
+        for (Movie movie : movies) {
+            System.out.println(name  + "  " + movie.getName());
+            if (movie.getName().replaceAll("\\." , " ").equals(name))
                 return movie;
+        }
+        for (Series series : seriesArrayList) {
+            for (Season season : series.getSeasons()) {
+                for (Episode episode : season.episodes) {
+                    System.out.println(name  + "  " + episode.getName());
+                    if (episode.getName().equals(name))
+                        return episode;
+                }
+            }
         }
         return null;
     }
@@ -267,7 +288,7 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
 
     @Override
     public void onRefresh() {
-        refreshList(movies,series);
+        refreshList(movies, series);
     }
 
 
@@ -343,7 +364,7 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
                     int max = 0;
                     sortMovieArray(searchMovieArray, movieArrayListSearch, max);
                     sort(searchSeriesArray, seriesArrayListSearch, max);
-                    refreshList(movieArrayListSearch , seriesArrayListSearch);
+                    refreshList(movieArrayListSearch, seriesArrayListSearch);
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
@@ -398,11 +419,11 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
         int i = 0;
         Log.e(name1, name2);
 
-        for (int c1 = 0 ; c1 < name2CharArray.length; c1++) {
+        for (int c1 = 0; c1 < name2CharArray.length; c1++) {
             for (int c = 0; c < name1CharArray.length; c++) {
-                if (name1CharArray[c] == name2CharArray[c1])  {
+                if (name1CharArray[c] == name2CharArray[c1]) {
                     i++;
-                    Log.i("SA", String.valueOf(c) + " " +String.valueOf(c1));
+                    Log.i("SA", String.valueOf(c) + " " + String.valueOf(c1));
                     name1CharArray[c] = '~';
                     c = 100000;
                 }
@@ -414,6 +435,6 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
 
     @Override
     public void onBackPressed() {
-        refreshList(movies , series);
+        refreshList(movies, series);
     }
 }
