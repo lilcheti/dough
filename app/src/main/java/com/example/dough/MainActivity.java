@@ -224,17 +224,17 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
         downloadedFilmRecylclerView.setAdapter(downloadedMoviesAdapter);
         downloadedFilmRecylclerView.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));*/
         mSwipeRefreshLayout.setRefreshing(false);
-        refreshList();
+        refreshList(movies , series);
         search();
     }
 
-    private void refreshList() {
+    private void refreshList(ArrayList<Movie> movieArrayList , ArrayList<Series> seriesArrayList) {
         MovieRecViewAdapter adapter = new MovieRecViewAdapter(this);
-        adapter.setMovie(movies);
+        adapter.setMovie(movieArrayList);
         movierecview.setAdapter(adapter);
         movierecview.setLayoutManager(new GridLayoutManager(this, 3));
         SeriesRecViewAdapter adapterr = new SeriesRecViewAdapter(this);
-        adapterr.setSeries(series);
+        adapterr.setSeries(seriesArrayList);
         seriesrecview.setAdapter(adapterr);
         seriesrecview.setLayoutManager(new GridLayoutManager(this, 3));
         mSwipeRefreshLayout.setRefreshing(false);
@@ -266,7 +266,7 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
 
     @Override
     public void onRefresh() {
-        refreshList();
+        refreshList(movies,series);
     }
 
 
@@ -342,9 +342,7 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
                     int max = 0;
                     sortMovieArray(searchMovieArray, movieArrayListSearch, max);
                     sort(searchSeriesArray, seriesArrayListSearch, max);
-                    MainActivity.movies = movieArrayListSearch;
-                    MainActivity.series = seriesArrayListSearch;
-                    refreshList();
+                    refreshList(movieArrayListSearch , seriesArrayListSearch);
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
@@ -401,7 +399,7 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
 
         for (int c1 = 0 ; c1 < name2CharArray.length; c1++) {
             for (int c = 0; c < name1CharArray.length; c++) {
-                if (name1CharArray[c] == name2CharArray[c1]) {
+                if (name1CharArray[c] == name2CharArray[c1])  {
                     i++;
                     Log.i("SA", String.valueOf(c) + " " +String.valueOf(c1));
                     name1CharArray[c] = '~';
@@ -413,4 +411,8 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
         return i;
     }
 
+    @Override
+    public void onBackPressed() {
+        refreshList(movies , series);
+    }
 }
