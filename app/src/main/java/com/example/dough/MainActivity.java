@@ -76,7 +76,7 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
         downloadedFilmRecylclerView = findViewById(R.id.downloadedFilms);
         downloadJSON("https://raw.githubusercontent.com/rimthekid/Dough-mas/master/output2.json", false);
         downloadJSON("https://raw.githubusercontent.com/rimthekid/Dough-mas/master/series.json", true);
-        refreshList();
+
 
 
     }
@@ -203,7 +203,7 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
         File directory = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
 
 
-        Log.v("Files", directory.exists() + "");
+        /*Log.v("Files", directory.exists() + "");
         Log.v("Files", directory.isDirectory() + "");
         Log.v("Files", directory.listFiles() + "");
 
@@ -222,8 +222,9 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
         refreshList();
         DownloadedMoviesAdapter downloadedMoviesAdapter = new DownloadedMoviesAdapter(downloadedMovies, this);
         downloadedFilmRecylclerView.setAdapter(downloadedMoviesAdapter);
-        downloadedFilmRecylclerView.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
+        downloadedFilmRecylclerView.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));*/
         mSwipeRefreshLayout.setRefreshing(false);
+        refreshList();
         search();
     }
 
