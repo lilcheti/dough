@@ -42,4 +42,8 @@ public class Series {
         this.name = name;
         this.siteURL = siteURL;
     }
+
+    public void setName(String name) {
+        this.name = name;
+    }
 }

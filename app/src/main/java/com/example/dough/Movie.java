@@ -9,6 +9,10 @@ public class Movie {
     String name;
     File movieFile;
 
+    public void setName(String name) {
+        this.name = name;
+    }
+
     public void setMovieFile(File movieFile) {
         this.movieFile = movieFile;
     }

@@ -2,15 +2,16 @@
 <androidx.swiperefreshlayout.widget.SwipeRefreshLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/refresh"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:padding="10dp"
-    tools:context=".MainActivity"
-    android:id="@+id/refresh">
+    tools:context=".MainActivity">
 
     <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent">
+
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
@@ -18,7 +19,26 @@
             android:orientation="vertical">
 
 
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="horizontal">
 
+                <ImageButton
+                    android:id="@+id/imageButton4"
+                    android:layout_width="125dp"
+                    android:layout_height="35dp"
+                    app:srcCompat="@android:drawable/ic_menu_search" />
+
+                <EditText
+                    android:id="@+id/editTextTextPersonName"
+                    android:layout_width="257dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:ems="10"
+                    android:inputType="textPersonName"
+                    android:text="Movie or sereas name" />
+            </LinearLayout>
 
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/downloadedFilms"
@@ -30,14 +50,14 @@
                 android:id="@+id/movierecview"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="10dp"
-                />
+                android:layout_marginBottom="10dp" />
+
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/seriesrecview"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="10dp"
-                />
+                android:layout_height="228dp"
+                android:layout_marginBottom="10dp" />
+
         </LinearLayout>
     </androidx.core.widget.NestedScrollView>
 
