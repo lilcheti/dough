@@ -201,6 +201,7 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
         //System.out.println(movies.get(0).getVidurl());
         System.out.println(Environment.DIRECTORY_DOWNLOADS);
         File fileTMP = new File(Environment.DIRECTORY_DOWNLOADS , "Dough");
+        fileTMP.mkdir();
         File directory = Environment.getExternalStoragePublicDirectory(fileTMP.getAbsolutePath());
 
 
@@ -210,31 +211,34 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
 
         File[] files = directory.listFiles();
         ArrayList<Movie> downloadedMovies = new ArrayList<>();
-        for (File file : files) {
-            System.out.println(file.getName());
-            String[] name = file.getName().split("\\.");
-            String movieName = filmName(name);
-            File dir = new File(MainActivity.this.getFilesDir(), "json");
+        if (files!= null) {
+            for (File file : files) {
+                System.out.println(file.getName());
+                String[] name = file.getName().split("\\.");
+                String movieName = filmName(name);
+                File dir = new File(MainActivity.this.getFilesDir(), "json");
 
-            File seriesJson = new File(dir, "seriesJson.json");
-            File moviesJson = new File(dir, "moviesJson.json");
-            FileReader movieReader = new FileReader(moviesJson);
-            FileReader seriesReader = new FileReader(seriesJson);
-            Gson gson = new Gson();
-            ArrayList<Movie> movies = gson.fromJson(movieReader, new TypeToken<ArrayList<Movie>>() {
-            }.getType());
-            ArrayList<Series> series = gson.fromJson(seriesReader, new TypeToken<ArrayList<Series>>() {
-            }.getType());
-            Movie movie = findMovieByName(movieName, movies , series);
-            if (movie != null) {
-                movie.setMovieFile(file);
-                downloadedMovies.add(movie);
+                File seriesJson = new File(dir, "seriesJson.json");
+                File moviesJson = new File(dir, "moviesJson.json");
+                FileReader movieReader = new FileReader(moviesJson);
+                FileReader seriesReader = new FileReader(seriesJson);
+                Gson gson = new Gson();
+                ArrayList<Movie> movies = gson.fromJson(movieReader, new TypeToken<ArrayList<Movie>>() {
+                }.getType());
+                ArrayList<Series> series = gson.fromJson(seriesReader, new TypeToken<ArrayList<Series>>() {
+                }.getType());
+                Movie movie = findMovieByName(movieName, movies, series);
+                if (movie != null) {
+                    movie.setMovieFile(file);
+                    downloadedMovies.add(movie);
+                }
             }
+            refreshList(movies, series);
+            DownloadedMoviesAdapter downloadedMoviesAdapter = new DownloadedMoviesAdapter(downloadedMovies, this);
+            downloadedFilmRecylclerView.setAdapter(downloadedMoviesAdapter);
+            downloadedFilmRecylclerView.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
+            downloadedFilmRecylclerView.setVisibility(View.VISIBLE);
         }
-        refreshList(movies, series);
-        DownloadedMoviesAdapter downloadedMoviesAdapter = new DownloadedMoviesAdapter(downloadedMovies, this);
-        downloadedFilmRecylclerView.setAdapter(downloadedMoviesAdapter);
-        downloadedFilmRecylclerView.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
         mSwipeRefreshLayout.setRefreshing(false);
         refreshList(movies, series);
         search();
