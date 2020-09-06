@@ -77,6 +77,8 @@ public class SeriesAdapter extends RecyclerView.Adapter<SeriesAdapter.ViewHolder
                                 request.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED);
                             }
                             File dir = new File(Environment.DIRECTORY_DOWNLOADS , "Dough");
+                            if (!dir.mkdirs())
+                                dir.mkdirs();
                             request.setDestinationInExternalPublicDir(  dir.getAbsolutePath(), episodes.get(position).getName() + ".mkv");
 
 // get download service and enqueue file

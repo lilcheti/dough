@@ -200,10 +200,11 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
         }*/
 
         //System.out.println(movies.get(0).getVidurl());
-        File directory = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
+        File fileTMP = new File(Environment.DIRECTORY_DOWNLOADS + "Dough");
+        File directory = Environment.getExternalStoragePublicDirectory(fileTMP.getAbsolutePath());
 
 
-        /*Log.v("Files", directory.exists() + "");
+        Log.v("Files", directory.exists() + "");
         Log.v("Files", directory.isDirectory() + "");
         Log.v("Files", directory.listFiles() + "");
 
@@ -219,10 +220,10 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
                 downloadedMovies.add(movie);
             }
         }
-        refreshList();
+        refreshList(movies , series);
         DownloadedMoviesAdapter downloadedMoviesAdapter = new DownloadedMoviesAdapter(downloadedMovies, this);
         downloadedFilmRecylclerView.setAdapter(downloadedMoviesAdapter);
-        downloadedFilmRecylclerView.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));*/
+        downloadedFilmRecylclerView.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
         mSwipeRefreshLayout.setRefreshing(false);
         refreshList(movies , series);
         search();
