@@ -22,6 +22,7 @@ import androidx.cardview.widget.CardView;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
+import com.google.gson.Gson;
 
 import java.util.ArrayList;
 
@@ -44,6 +45,7 @@ public class SeriesRecViewAdapter extends RecyclerView.Adapter<SeriesRecViewAdap
 
     @Override
     public void onBindViewHolder(@NonNull final ViewHolder holder, final int position) {
+        final Gson gson = new Gson();
         holder.txtName.setText(Series.get(position).getName());
         holder.parent.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -51,6 +53,7 @@ public class SeriesRecViewAdapter extends RecyclerView.Adapter<SeriesRecViewAdap
                     Intent intent = new Intent(view.getContext(), SeriesActivity.class);
                     intent.putExtra("imgurl", Series.get(position).getImgURL());
                     intent.putExtra("seriesName", Series.get(position).getName());
+                    intent.putExtra("seriesObject" , gson.toJson(Series.get(position)) );
                     view.getContext().startActivity(intent);
             }
         });

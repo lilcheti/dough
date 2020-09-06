@@ -6,6 +6,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -15,13 +16,17 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 
 import java.io.IOException;
+import java.lang.reflect.Type;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 
 public class SeriesActivity extends AppCompatActivity {
@@ -30,13 +35,21 @@ public class SeriesActivity extends AppCompatActivity {
     String seriesName;
     Spinner dropdown;
     RecyclerView seriesRecView;
+    String url;
+    Series series;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        Gson gson = new Gson();
         setContentView(R.layout.activity_series);
         imgUrl = getIntent().getStringExtra("imgurl");
+        url = getIntent().getStringExtra("url");
         seriesName = getIntent().getStringExtra("seriesName");
+        Type type = new TypeToken<Series>() {
+        }.getType();
+
+        series = gson.fromJson(getIntent().getStringExtra("seriesObject"), type);
         ImageView imageView = findViewById(R.id.imageView3);
         Glide.with(this)
                 .asBitmap()
@@ -49,60 +62,10 @@ public class SeriesActivity extends AppCompatActivity {
         dropdown.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> adapterView, View view, final int i, long l) {
-                final ArrayList<Episode> episodes = new ArrayList<Episode>();
-                final ArrayList<String> episodesDescription = new ArrayList<>();
-               seriesName = seriesName.replaceAll(":", "");
-                class Load extends AsyncTask<Void, Void, Boolean> {
-
-                    @Override
-                    protected void onPreExecute() {
-                        super.onPreExecute();
-
-                    }
-
-                    @Override
-                    protected Boolean doInBackground(Void... voids) {
-                        String url;
-
-                        if (i < 9) {
-                            url = "http://dl1.3rver.org/hex1/Series/" + seriesName.replaceAll(" ", "\\.") + "/S0" + (i+1);
-                        } else {
-                            url = "http://dl1.3rver.org/hex1/Series/" + seriesName.replaceAll(" ", "\\.") + "/S" + String.valueOf(i+1);
-                        }
-                        Document document = null;
-
-                        try {
-                            document = Jsoup.connect(url).get();
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                        }
-
-                        for (Element file : document.select("a")) {
-                            Collections.addAll(episodesDescription, file.attr("href").split("/"));
-                        }
-                        episodesDescription.remove(0);
-                        for (int j = 1 ; j <= episodesDescription.size() ; j++ ) {
-                            System.out.println(url+"/" + episodesDescription.get(j-1).replaceAll(" " , "\\."));
-                            episodes.add(new Episode("S" + (i+1) + "E" + j , imgUrl , url+"/" + episodesDescription.get(j-1).replaceAll(" " , "\\.")) );
-                        }
-                        return null;
-                    }
-                    @Override
-                    protected void onPostExecute(Boolean s) {
-                        super.onPostExecute(s);
-                        seriesRecView = findViewById(R.id.seriesRecView);
-                        SeriesAdapter adapter = new SeriesAdapter(episodes , SeriesActivity.this);
-                        seriesRecView.setAdapter(adapter);
-                        seriesRecView.setLayoutManager(new GridLayoutManager(SeriesActivity.this, 1));
-
-                    }
-                }
-                Load kk = new Load();
-                kk.execute();
-
-
-
-
+                seriesRecView = findViewById(R.id.seriesRecView);
+                SeriesAdapter adapter = new SeriesAdapter(series.getSeasons().get(i ).getEpisodes(), SeriesActivity.this);
+                seriesRecView.setAdapter(adapter);
+                seriesRecView.setLayoutManager(new GridLayoutManager(SeriesActivity.this, 1));
 
             }
 
@@ -116,7 +79,7 @@ public class SeriesActivity extends AppCompatActivity {
     }
 
     private void setSpinner() {
-       // final ArrayList<String> items = new ArrayList<>();
+        // final ArrayList<String> items = new ArrayList<>();
         class spinna extends AsyncTask<Void, Void, ArrayList<String>> {
 
             @Override
@@ -127,37 +90,23 @@ public class SeriesActivity extends AppCompatActivity {
             @Override
             protected ArrayList<String> doInBackground(Void... voids) {
                 ArrayList<String> items = new ArrayList<>();
-                ArrayList<String> sessions = new ArrayList<>();
-                Document document = null;
-                seriesName = seriesName.replaceAll(":", "");
-                try {
-                    document = Jsoup.connect("http://dl1.3rver.org/hex1/Series/" + seriesName.replaceAll(" ", "\\.") + "/").get();
-                    for (Element file : document.select("a")) {
-                        Collections.addAll(sessions, file.text().split("/"));
-                    }
-                    sessions.remove(0);
-                    int i = 1;
-                    for (String session : sessions) {
-                        items.add(String.valueOf(i));
-                        System.out.println(session + i);
-                        i++;
-                    }
-                    return items;
-                } catch (IOException e) {
-                    e.printStackTrace();
-                    return null;
+                int i = 1;
+                for (Season season : series.getSeasons()) {
+                    items.add(String.valueOf(i));
+                    i++;
                 }
 
+                return items;
+
             }
+
             @Override
             protected void onPostExecute(ArrayList<String> items) {
                 super.onPostExecute(items);
                 ArrayAdapter<String> adapter = new ArrayAdapter<String>(SeriesActivity.this, android.R.layout.simple_spinner_dropdown_item, items);
                 adapter.setDropDownViewResource(R.layout.support_simple_spinner_dropdown_item);
-
                 dropdown.setAdapter(adapter);
                 adapter.notifyDataSetChanged();
-
                 adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
             }
         }
@@ -166,5 +115,23 @@ public class SeriesActivity extends AppCompatActivity {
 
 
     }
+
+    public boolean doesEpisodeExist(ArrayList<Episode> episodes, String episodeName) {
+        for (Episode episode : episodes) {
+            if (episode.getName().equals(episodeName)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public Episode findEpisodeByName(ArrayList<Episode> episodes, String name) {
+        for (Episode episode : episodes) {
+            if (episode.getName().equals(name))
+                return episode;
+        }
+        return null;
+    }
+
 
 }
