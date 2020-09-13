@@ -38,6 +38,13 @@
                     android:hint="Movie or series name"
                     android:inputType="textPersonName" />
             </LinearLayout>
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Downloads"
+                android:textStyle="bold"
+                android:layout_margin="5dp"
+                android:visibility="gone"/>
 
 
             <androidx.recyclerview.widget.RecyclerView
@@ -46,12 +53,24 @@
                 android:layout_height="132dp"
                 android:scrollbars="horizontal"
                 android:visibility="gone" />
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Movies"
+                android:textStyle="bold"
+                android:layout_margin="5dp"/>
 
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/movierecview"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="10dp" />
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Series"
+                android:textStyle="bold"
+                android:layout_margin="5dp"/>
 
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/seriesrecview"
