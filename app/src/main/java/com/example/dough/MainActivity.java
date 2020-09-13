@@ -43,7 +43,6 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.lang.reflect.Type;
 import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
 import java.net.Proxy;
 import java.net.URL;
 import java.util.ArrayList;
@@ -67,22 +66,23 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        Log.e("lpse" , "");
         // permissionStuff();
-        ActivityCompat.requestPermissions(this,
-                new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, 1);
         setContentView(R.layout.activity_main);
-        Log.e("lpse" , "");
+
         movierecview = findViewById(R.id.movierecview);
         seriesrecview = findViewById(R.id.seriesrecview);
         downloadedFilmRecylclerView = findViewById(R.id.downloadedFilms);
         downloadJSON("https://raw.githubusercontent.com/rimthekid/Dough-mas/master/output2.json", false);
         downloadJSON("https://raw.githubusercontent.com/rimthekid/Dough-mas/master/series.json", true);
+        dodol("https://raw.githubusercontent.com/rimthekid/Dough-mas/master/moviesKol.json", false);
+        dodol("https://raw.githubusercontent.com/rimthekid/Dough-mas/master/seriesKol.json", true);
+
+
     }
 
 
     private void downloadJSON(final String urlWebService, final boolean isSeries) {
-        final StringBuilder builder = new StringBuilder();
+
         class DownloadJSON extends AsyncTask<Void, Void, String> {
 
             @Override
@@ -120,19 +120,17 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
 
                 if (isSeries) {
                     try {
-                        loadIntoListView(builder.toString().trim(), true);
-                    } catch (JSONException | IOException | InterruptedException e) {
+                        loadIntoListView(s.toString().trim(), true);
+                    } catch (JSONException | FileNotFoundException e) {
                         e.printStackTrace();
                     }
-                    writeFileOnInternalStorage(MainActivity.this, "seriesJson.json", s);
-
                 } else {
                     try {
-                        loadIntoListView(builder.toString().trim(), false);
-                    } catch (JSONException | IOException | InterruptedException e) {
+                        loadIntoListView(s.toString().trim(), false);
+                    } catch (JSONException | FileNotFoundException e) {
                         e.printStackTrace();
                     }
-                    writeFileOnInternalStorage(MainActivity.this, "moviesJson.json", s);
+
                 }
                 //Toast.makeText(getApplicationContext(), s, Toast.LENGTH_LONG).show();
 
@@ -141,59 +139,27 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
             @Override
             protected String doInBackground(Void... voids) {
                 try {
-                    int i = 0;
                     URL url = new URL(urlWebService);
                     HttpURLConnection con = (HttpURLConnection) url.openConnection();
                     StringBuilder sb = new StringBuilder();
                     BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(con.getInputStream()));
                     String json;
-                    System.out.println("ls");
                     while ((json = bufferedReader.readLine()) != null) {
-                        Log.e("kos", json);
-                        builder.append(json + "\n");
                         sb.append(json + "\n");
-                        System.out.println(builder.toString());
                     }
-
                     return sb.toString().trim();
                 } catch (Exception e) {
-                    e.printStackTrace();
                     return null;
                 }
             }
         }
-            /*
-            @Override
-            protected String doInBackground(Void... voids) {
-                try {
-                    int i = 0;
-                    URL url = new URL(urlWebService);
-                    HttpURLConnection con = (HttpURLConnection) url.openConnection();
-                    StringBuilder sb = new StringBuilder();
-                    BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(con.getInputStream()));
-                    String json;
-                    while ((json = bufferedReader.readLine()) != null) {
-                        sb.append(json + "\n");
-                        i++;
-                        Log.e(String.valueOf(i) + "kose", json );
-                        if (i < 11) {
-                            builder.append(json + "\n");
-                        }
-                    }
-                    return sb.toString().trim();
-                } catch (Exception e) {
-                    return null;
-                }
-            }
-        }*/
         DownloadJSON getJSON = new DownloadJSON();
         getJSON.execute();
     }
 
 
-    private void loadIntoListView(String json, boolean isSeries) throws JSONException, IOException, InterruptedException {
+    private void loadIntoListView(String json, boolean isSeries) throws JSONException, FileNotFoundException {
         if (!isSeries) {
-         //   Thread.sleep(10000);
             Gson gson = new Gson();
             Type collectionType = new TypeToken<Collection<Movie>>() {
             }.getType();
@@ -227,13 +193,8 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
 
         //System.out.println(movies.get(0).getVidurl());
         System.out.println(Environment.DIRECTORY_DOWNLOADS);
-        File fileTMP = new File(Environment.DIRECTORY_DOWNLOADS);
-        if (!fileTMP.exists()) {
-            Log.e("z", String.valueOf(fileTMP.mkdirs()));
-            fileTMP.mkdir();
-            fileTMP.mkdirs();
-            Log.e("", "loadIntoListView: ");
-        }
+        File fileTMP = new File(Environment.DIRECTORY_DOWNLOADS , "Dough");
+        fileTMP.mkdir();
         File directory = Environment.getExternalStoragePublicDirectory(fileTMP.getAbsolutePath());
 
 
@@ -243,30 +204,34 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
 
         File[] files = directory.listFiles();
         ArrayList<Movie> downloadedMovies = new ArrayList<>();
-        for (File file : files) {
-            System.out.println(file.getName());
-            String[] name = file.getName().split("\\.");
-            String movieName = filmName(name);
-            File dir = new File(MainActivity.this.getFilesDir(), "json");
-            File seriesJson = new File(dir, "seriesJson.json");
-            File moviesJson = new File(dir, "moviesJson.json");
-            FileReader movieReader = new FileReader(moviesJson);
-            FileReader seriesReader = new FileReader(seriesJson);
-            Gson gson = new Gson();
-            ArrayList<Movie> movies = gson.fromJson(movieReader, new TypeToken<ArrayList<Movie>>() {
-            }.getType());
-            ArrayList<Series> series = gson.fromJson(seriesReader, new TypeToken<ArrayList<Series>>() {
-            }.getType());
-            Movie movie = findMovieByName(movieName, movies, series);
-            if (movie != null) {
-                movie.setMovieFile(file);
-                downloadedMovies.add(movie);
+        if (files!= null) {
+            for (File file : files) {
+                System.out.println(file.getName());
+                String[] name = file.getName().split("\\.");
+                String movieName = filmName(name);
+                File dir = new File(MainActivity.this.getFilesDir(), "json");
+
+                File seriesJson = new File(dir, "seriesJson.json");
+                File moviesJson = new File(dir, "moviesJson.json");
+                FileReader movieReader = new FileReader(moviesJson);
+                FileReader seriesReader = new FileReader(seriesJson);
+                Gson gson = new Gson();
+                ArrayList<Movie> movies = gson.fromJson(movieReader, new TypeToken<ArrayList<Movie>>() {
+                }.getType());
+                ArrayList<Series> series = gson.fromJson(seriesReader, new TypeToken<ArrayList<Series>>() {
+                }.getType());
+                Movie movie = findMovieByName(movieName, movies, series);
+                if (movie != null) {
+                    movie.setMovieFile(file);
+                    downloadedMovies.add(movie);
+                }
             }
+            refreshList(movies, series);
+            DownloadedMoviesAdapter downloadedMoviesAdapter = new DownloadedMoviesAdapter(downloadedMovies, this);
+            downloadedFilmRecylclerView.setAdapter(downloadedMoviesAdapter);
+            downloadedFilmRecylclerView.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
+            downloadedFilmRecylclerView.setVisibility(View.VISIBLE);
         }
-        refreshList(movies, series);
-        DownloadedMoviesAdapter downloadedMoviesAdapter = new DownloadedMoviesAdapter(downloadedMovies, this);
-        downloadedFilmRecylclerView.setAdapter(downloadedMoviesAdapter);
-        downloadedFilmRecylclerView.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
         mSwipeRefreshLayout.setRefreshing(false);
         refreshList(movies, series);
         search();
@@ -299,16 +264,16 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
         return null;
     }
 
-    public Movie findMovieByName(String name, ArrayList<Movie> movies, ArrayList<Series> seriesArrayList) {
+    public Movie findMovieByName(String name, ArrayList<Movie> movies ,ArrayList<Series> seriesArrayList) {
         for (Movie movie : movies) {
-            System.out.println(name + "  " + movie.getName());
-            if (movie.getName().replaceAll("\\.", " ").equals(name))
+            System.out.println(name  + "  " + movie.getName());
+            if (movie.getName().replaceAll("\\." , " ").equals(name))
                 return movie;
         }
         for (Series series : seriesArrayList) {
             for (Season season : series.getSeasons()) {
                 for (Episode episode : season.episodes) {
-                    System.out.println(name + "  " + episode.getName());
+                    System.out.println(name  + "  " + episode.getName());
                     if (episode.getName().equals(name))
                         return episode;
                 }
@@ -371,89 +336,38 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
             public void onClick(View view) {
                 String text = editText.getText().toString();
                 Log.e("SA", text);
-
-                StringBuilder moviesBuilder = null;
+                File dir = new File(MainActivity.this.getFilesDir(), "json");
+                File seriesJson = new File(dir, "seriesJson.json");
+                File moviesJson = new File(dir, "moviesJson.json");
                 try {
-                    moviesBuilder = getStringBuilder( "https://raw.githubusercontent.com/rimthekid/Dough-mas/master/moviesKol.json");
-                } catch (InterruptedException e) {
+                    FileReader movieReader = new FileReader(moviesJson);
+                    FileReader seriesReader = new FileReader(seriesJson);
+                    Gson gson = new Gson();
+                    HashSet<Movie> movies = gson.fromJson(movieReader, new TypeToken<HashSet<Movie>>() {
+                    }.getType());
+                    HashSet<Series> series = gson.fromJson(seriesReader, new TypeToken<HashSet<Series>>() {
+                    }.getType());
+                    ArrayMap<Movie, Integer> searchMovieArray = new ArrayMap<>();
+                    ArrayMap<Series, Integer> searchSeriesArray = new ArrayMap<>();
+                    for (Movie movie : movies) {
+                        searchMovieArray.put(movie, checkName(movie.getName(), text));
+                    }
+                    for (Series series1 : series) {
+                        searchSeriesArray.put(series1, checkName(series1.getName(), text));
+                    }
+                    ArrayList<Movie> movieArrayListSearch = new ArrayList<>();
+                    ArrayList<Series> seriesArrayListSearch = new ArrayList<>();
+
+                    int max = 0;
+                    sortMovieArray(searchMovieArray, movieArrayListSearch, max);
+                    sort(searchSeriesArray, seriesArrayListSearch, max);
+                    refreshList(movieArrayListSearch, seriesArrayListSearch);
+                } catch (IOException e) {
                     e.printStackTrace();
                 }
-                StringBuilder seriesBuilder = null;
-                try {
-                    seriesBuilder = getStringBuilder("https://raw.githubusercontent.com/rimthekid/Dough-mas/master/seriesKol.json" );
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-
-                Gson gson = new Gson();
-                HashSet<Movie> movies = gson.fromJson(moviesBuilder.toString(), new TypeToken<HashSet<Movie>>() {
-                }.getType());
-                HashSet<Series> series = gson.fromJson(seriesBuilder.toString(), new TypeToken<HashSet<Series>>() {
-                }.getType());
-                Log.e("TAG", String.valueOf(series.size()));
-                Log.e("TAG", String.valueOf(movies.size()));
-                ArrayMap<Movie, Integer> searchMovieArray = new ArrayMap<>();
-                ArrayMap<Series, Integer> searchSeriesArray = new ArrayMap<>();
-                for (Movie movie : movies) {
-                    searchMovieArray.put(movie, checkName(movie.getName(), text));
-                }
-                for (Series series1 : series) {
-                    searchSeriesArray.put(series1, checkName(series1.getName(), text));
-                }
-                ArrayList<Movie> movieArrayListSearch = new ArrayList<>();
-                ArrayList<Series> seriesArrayListSearch = new ArrayList<>();
-
-                int max = 0;
-                sortMovieArray(searchMovieArray, movieArrayListSearch, max);
-                sort(searchSeriesArray, seriesArrayListSearch, max);
-                refreshList(movieArrayListSearch, seriesArrayListSearch);
 
             }
         });
-    }
-
-    private StringBuilder getStringBuilder(final String urlWeb) throws InterruptedException {
-        final StringBuilder sb = new StringBuilder();
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                URL url = null;
-
-                try {
-                    url = new URL(urlWeb);
-                } catch (MalformedURLException e) {
-                    e.printStackTrace();
-                }
-
-                HttpURLConnection con = null;
-                try {
-                    con = (HttpURLConnection) url.openConnection();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-
-                BufferedReader bufferedReader = null;
-                try {
-                    bufferedReader = new BufferedReader(new InputStreamReader(con.getInputStream()));
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-                String json = null;
-                while (true) {
-                    try {
-                        if (!((json = bufferedReader.readLine()) != null)) break;
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                    Log.e("kos", json);
-                    sb.append(json + "\n");
-                }
-
-            }
-        }).start();
-        Thread.sleep(1000);
-        return sb;
-
     }
 
     private void sortMovieArray(ArrayMap<Movie, Integer> searchMovieArray, ArrayList<Movie> movieArrayListSearch, int max) {
@@ -519,5 +433,72 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
     @Override
     public void onBackPressed() {
         refreshList(movies, series);
+    }
+    private void dodol(final String urlWebService, final boolean isSeries) {
+
+        class DownloadJSON extends AsyncTask<Void, Void, String> {
+
+            @Override
+            protected void onPreExecute() {
+                super.onPreExecute();
+                mSwipeRefreshLayout = (SwipeRefreshLayout) findViewById(R.id.refresh);
+                mSwipeRefreshLayout.setOnRefreshListener(MainActivity.this);
+                mSwipeRefreshLayout.setColorSchemeResources(R.color.colorPrimary,
+                        android.R.color.holo_green_dark,
+                        android.R.color.holo_orange_dark,
+                        android.R.color.holo_blue_dark);
+
+                /**
+                 * Showing Swipe Refresh animation on activity create
+                 * As animation won't start on onCreate, post runnable is used
+                 */
+                mSwipeRefreshLayout.post(new Runnable() {
+
+                    @Override
+                    public void run() {
+
+                        mSwipeRefreshLayout.setRefreshing(true);
+
+                        // Fetching data from server
+                    }
+                });
+            }
+
+
+            @RequiresApi(api = Build.VERSION_CODES.M)
+            @Override
+            protected void onPostExecute(String s) {
+                super.onPostExecute(s);
+
+
+                if (isSeries) {
+                    writeFileOnInternalStorage(MainActivity.this, "seriesJson.json", s);
+                } else {
+                    writeFileOnInternalStorage(MainActivity.this, "moviesJson.json", s);
+                }
+                //Toast.makeText(getApplicationContext(), s, Toast.LENGTH_LONG).show();
+
+            }
+
+            @Override
+            protected String doInBackground(Void... voids) {
+                try {
+                    int i = 0;
+                    URL url = new URL(urlWebService);
+                    HttpURLConnection con = (HttpURLConnection) url.openConnection();
+                    StringBuilder sb = new StringBuilder();
+                    BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(con.getInputStream()));
+                    String json;
+                    while ((json = bufferedReader.readLine()) != null) {
+                        sb.append(json + "\n");
+                    }
+                    return sb.toString().trim();
+                } catch (Exception e) {
+                    return null;
+                }
+            }
+        }
+        DownloadJSON getJSON = new DownloadJSON();
+        getJSON.execute();
     }
 }
