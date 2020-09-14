@@ -14,8 +14,16 @@
         android:layout_width="100dp"
         android:layout_height="100dp"
         tools:srcCompat="@tools:sample/avatars" />
+    <ImageButton
+        android:id="@+id/playy"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:translationX="-75dp"
+        android:src="@drawable/exo_controls_play"
+       />
 
     <TextView
+        android:translationX="-30dp"
         android:id="@+id/textView4"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

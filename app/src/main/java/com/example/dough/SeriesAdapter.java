@@ -49,7 +49,7 @@ public class SeriesAdapter extends RecyclerView.Adapter<SeriesAdapter.ViewHolder
                 .asBitmap()
                 .load(episodes.get(position).getImgURL())
                 .into(holder.imageView);
-        holder.imageView.setOnClickListener(new View.OnClickListener() {
+        holder.play.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 Toast.makeText(context, episodes.get(position).getName(), Toast.LENGTH_SHORT).show();
@@ -104,12 +104,13 @@ public class SeriesAdapter extends RecyclerView.Adapter<SeriesAdapter.ViewHolder
 
         ImageView imageView;
         TextView description;
-        ImageButton imageButton;
+        ImageButton imageButton, play;
 
 
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
             imageView = itemView.findViewById(R.id.imageView4);
+            play = itemView.findViewById(R.id.playy);
             description =  itemView.findViewById(R.id.textView4);
             imageButton = itemView.findViewById(R.id.dlSeriesButton);
         }

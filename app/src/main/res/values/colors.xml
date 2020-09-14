@@ -4,4 +4,6 @@
     <color name="colorPrimaryDark">#3700B3</color>
     <color name="colorAccent">@android:color/holo_red_dark</color>
     <color name="black_overlay">#66000000</color>
+    <color name="kk">#8879716F</color>
+    <color name="white">#434040</color>
 </resources>

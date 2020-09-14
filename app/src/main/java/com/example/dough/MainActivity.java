@@ -241,11 +241,11 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
         MovieRecViewAdapter adapter = new MovieRecViewAdapter(this);
         adapter.setMovie(movieArrayList);
         movierecview.setAdapter(adapter);
-        movierecview.setLayoutManager(new GridLayoutManager(this, 3));
+        movierecview.setLayoutManager(new GridLayoutManager(this, 5));
         SeriesRecViewAdapter adapterr = new SeriesRecViewAdapter(this);
         adapterr.setSeries(seriesArrayList);
         seriesrecview.setAdapter(adapterr);
-        seriesrecview.setLayoutManager(new GridLayoutManager(this, 3));
+        seriesrecview.setLayoutManager(new GridLayoutManager(this, 5));
         mSwipeRefreshLayout.setRefreshing(false);
 
     }
@@ -335,6 +335,7 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
             @Override
             public void onClick(View view) {
                 String text = editText.getText().toString();
+                if (text != null){
                 Log.e("SA", text);
                 File dir = new File(MainActivity.this.getFilesDir(), "json");
                 File seriesJson = new File(dir, "seriesJson.json");
@@ -364,7 +365,7 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
                     refreshList(movieArrayListSearch, seriesArrayListSearch);
                 } catch (IOException e) {
                     e.printStackTrace();
-                }
+                }}
 
             }
         });

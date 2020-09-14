@@ -7,10 +7,15 @@
     android:padding="10dp"
     app:cardCornerRadius="15dp"
     app:cardElevation="10dp"
-    android:layout_margin="10dp">
+    android:layout_margin="10dp"
+    android:focusable="auto"
+    android:focusableInTouchMode="true"
+    app:cardBackgroundColor="@color/cardselected"
+    >
 <RelativeLayout
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    >
     <TextView
         android:id="@+id/txtName"
         android:layout_width="wrap_content"

@@ -22,13 +22,6 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:orientation="horizontal">
-
-                <ImageButton
-                    android:id="@+id/imageButton4"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    app:srcCompat="@android:drawable/ic_menu_search" />
-
                 <EditText
                     android:id="@+id/editTextTextPersonName"
                     android:layout_width="wrap_content"
@@ -37,6 +30,11 @@
                     android:ems="10"
                     android:hint="Movie or series name"
                     android:inputType="textPersonName" />
+                <ImageButton
+                    android:id="@+id/imageButton4"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    app:srcCompat="@android:drawable/ic_menu_search" />
             </LinearLayout>
             <TextView
                 android:layout_width="match_parent"
@@ -52,11 +50,13 @@
                 android:layout_width="match_parent"
                 android:layout_height="132dp"
                 android:scrollbars="horizontal"
-                android:visibility="gone" />
+                android:visibility="gone"
+                android:focusable="auto"
+                android:focusableInTouchMode="true"/>
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Movies"
+                android:text="Recommended Movies"
                 android:textStyle="bold"
                 android:layout_margin="5dp"/>
 
@@ -64,11 +64,13 @@
                 android:id="@+id/movierecview"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="10dp" />
+                android:layout_marginBottom="10dp"
+                android:focusable="auto"
+                android:focusableInTouchMode="true"/>
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Series"
+                android:text="Recommended Series"
                 android:textStyle="bold"
                 android:layout_margin="5dp"/>
 
@@ -76,7 +78,9 @@
                 android:id="@+id/seriesrecview"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="10dp" />
+                android:layout_marginBottom="10dp"
+                android:focusable="auto"
+                android:focusableInTouchMode="true"/>
 
         </LinearLayout>
     </androidx.core.widget.NestedScrollView>
