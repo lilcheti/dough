@@ -90,10 +90,9 @@ public class SeriesActivity extends AppCompatActivity {
             @Override
             protected ArrayList<String> doInBackground(Void... voids) {
                 ArrayList<String> items = new ArrayList<>();
-                int i = 1;
                 for (Season season : series.getSeasons()) {
+                    int i = season.getSeasonNumber();
                     items.add(String.valueOf(i));
-                    i++;
                 }
 
                 return items;

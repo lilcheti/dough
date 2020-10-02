@@ -23,7 +23,8 @@
         <activity android:name=".SeriesActivity"></activity>
         <activity
             android:name=".Playmovie"
-            android:configChanges="orientation|screenSize|layoutDirection">
+            android:configChanges="orientation|screenSize|layoutDirection"
+            android:theme="@style/Theme.AppCompat.Light.NoActionBar.FullScreen" >
 
         </activity>
         <activity android:name=".MainActivity"

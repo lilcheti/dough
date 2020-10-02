@@ -1,6 +1,7 @@
 package com.example.dough;
 
 import androidx.annotation.RequiresApi;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
@@ -11,19 +12,28 @@ import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import android.Manifest;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.ArrayMap;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.View;
+import android.view.WindowManager;
+import android.view.inputmethod.EditorInfo;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.material.tabs.TabLayout;
+import com.google.android.material.tabs.TabLayout.OnTabSelectedListener;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.gun0912.tedpermission.PermissionListener;
@@ -48,6 +58,7 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -68,14 +79,44 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
         super.onCreate(savedInstanceState);
         // permissionStuff();
         setContentView(R.layout.activity_main);
-
+        this.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
+        TabLayout tabLayout = new TabLayout(MainActivity.this);
+        tabLayout = findViewById(R.id.tabb);
         movierecview = findViewById(R.id.movierecview);
         seriesrecview = findViewById(R.id.seriesrecview);
         downloadedFilmRecylclerView = findViewById(R.id.downloadedFilms);
-        downloadJSON("https://raw.githubusercontent.com/rimthekid/Dough-mas/master/output2.json", false);
-        downloadJSON("https://raw.githubusercontent.com/rimthekid/Dough-mas/master/series.json", true);
-        dodol("https://raw.githubusercontent.com/rimthekid/Dough-mas/master/moviesKol.json", false);
-        dodol("https://raw.githubusercontent.com/rimthekid/Dough-mas/master/seriesKol.json", true);
+        tabLayout.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
+            @Override
+            public void onTabSelected(TabLayout.Tab tab) {
+                if (tab.getPosition() == 0){
+                    movierecview.setVisibility(RecyclerView.VISIBLE);
+                    seriesrecview.setVisibility(RecyclerView.GONE);
+
+                }else if (tab.getPosition() == 1){
+                    movierecview.setVisibility(RecyclerView.GONE);
+                    seriesrecview.setVisibility(RecyclerView.VISIBLE);
+                }
+                //do stuff here
+            }
+
+            @Override
+            public void onTabUnselected(TabLayout.Tab tab) {
+
+            }
+
+            @Override
+            public void onTabReselected(TabLayout.Tab tab) {
+
+            }
+        });
+
+
+        downloadJSON("https://raw.githubusercontent.com/rimthekid/Dough-mast/master/movies.json", false);
+        downloadJSON("https://raw.githubusercontent.com/rimthekid/Dough-mast/master/series.json", true);
+        //refreshList(movies, series);
+        search();
+        //dodol("https://raw.githubusercontent.com/rimthekid/Dough-mas/master/moviesKol.json", false);
+        //dodol("https://raw.githubusercontent.com/rimthekid/Dough-mas/master/seriesKol.json", true);
 
 
     }
@@ -116,17 +157,18 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
             @Override
             protected void onPostExecute(String s) {
                 super.onPostExecute(s);
-
-
+                if (s!=null){
                 if (isSeries) {
                     try {
-                        loadIntoListView(s.toString().trim(), true);
+                        loadIntoListView(s.trim(), true);
+                        writeFileOnInternalStorage(MainActivity.this, "seriesJson.json", s);
                     } catch (JSONException | FileNotFoundException e) {
                         e.printStackTrace();
                     }
                 } else {
                     try {
-                        loadIntoListView(s.toString().trim(), false);
+                        loadIntoListView(s.trim(), false);
+                        writeFileOnInternalStorage(MainActivity.this, "moviesJson.json", s);
                     } catch (JSONException | FileNotFoundException e) {
                         e.printStackTrace();
                     }
@@ -134,7 +176,29 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
                 }
                 //Toast.makeText(getApplicationContext(), s, Toast.LENGTH_LONG).show();
 
+            }else{
+                    AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
+
+                    builder.setTitle("Connection problem!");
+
+                    builder.setMessage("please check your connection.")
+                            .setCancelable(false)
+                            .setPositiveButton("CLOSE", new DialogInterface.OnClickListener() {
+                                public void onClick(DialogInterface dialog, int id) {
+                                    dialog.cancel();
+                                    finish();
+                                }
+                            })
+                            .setNegativeButton("try again", new DialogInterface.OnClickListener() {
+                                public void onClick(DialogInterface dialog, int id) {
+                                    recreate();
+                                }
+                            });
+
+                    AlertDialog alertDialog = builder.create();
+                    alertDialog.show();}
             }
+
 
             @Override
             protected String doInBackground(Void... voids) {
@@ -181,7 +245,7 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
                 seriezz1.setName(seriezz1.getName().replaceAll("\\.", " "));
             }
             series.addAll(seriezz);
-            System.out.println(series.get(2).getImgURL());
+           // System.out.println(series.get(2).getImgURL());
             System.out.println("kos");
         }
 
@@ -192,9 +256,10 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
         }*/
 
         //System.out.println(movies.get(0).getVidurl());
-        System.out.println(Environment.DIRECTORY_DOWNLOADS);
+       /* System.out.println(Environment.DIRECTORY_DOWNLOADS);
         File fileTMP = new File(Environment.DIRECTORY_DOWNLOADS , "Dough");
-        fileTMP.mkdir();
+        if (!fileTMP.mkdirs()) {
+        fileTMP.mkdir();}
         File directory = Environment.getExternalStoragePublicDirectory(fileTMP.getAbsolutePath());
 
 
@@ -226,26 +291,39 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
                     downloadedMovies.add(movie);
                 }
             }
-            refreshList(movies, series);
             DownloadedMoviesAdapter downloadedMoviesAdapter = new DownloadedMoviesAdapter(downloadedMovies, this);
             downloadedFilmRecylclerView.setAdapter(downloadedMoviesAdapter);
             downloadedFilmRecylclerView.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
-            downloadedFilmRecylclerView.setVisibility(View.VISIBLE);
-        }
-        mSwipeRefreshLayout.setRefreshing(false);
+            downloadedFilmRecylclerView.setVisibility(View.VISIBLE);*/
         refreshList(movies, series);
-        search();
-    }
+
+        }
+
+
 
     private void refreshList(ArrayList<Movie> movieArrayList, ArrayList<Series> seriesArrayList) {
+        Collections.shuffle(movieArrayList);
+        Collections.shuffle(seriesArrayList);
+        ArrayList<Movie> mm = new ArrayList<>();
+        ArrayList<Series> ss = new ArrayList<>();
+        if (movieArrayList.size() != 0 && seriesArrayList.size() != 0){
+        for (int i = 0 ;i<40;i++){
+            try {
+                mm.add(movieArrayList.get(i));
+                ss.add(seriesArrayList.get(i));
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+
+        }}
         MovieRecViewAdapter adapter = new MovieRecViewAdapter(this);
-        adapter.setMovie(movieArrayList);
+        adapter.setMovie(mm);
         movierecview.setAdapter(adapter);
-        movierecview.setLayoutManager(new GridLayoutManager(this, 5));
+        movierecview.setLayoutManager(new GridLayoutManager(this, 3));
         SeriesRecViewAdapter adapterr = new SeriesRecViewAdapter(this);
-        adapterr.setSeries(seriesArrayList);
+        adapterr.setSeries(ss);
         seriesrecview.setAdapter(adapterr);
-        seriesrecview.setLayoutManager(new GridLayoutManager(this, 5));
+        seriesrecview.setLayoutManager(new GridLayoutManager(this, 3));
         mSwipeRefreshLayout.setRefreshing(false);
 
     }
@@ -274,7 +352,7 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
             for (Season season : series.getSeasons()) {
                 for (Episode episode : season.episodes) {
                     System.out.println(name  + "  " + episode.getName());
-                    if (episode.getName().equals(name))
+//                    if (episode.getName().equals(name))
                         return episode;
                 }
             }
@@ -331,6 +409,47 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
     public void search() {
         final ImageButton search = findViewById(R.id.imageButton4);
         final EditText editText = findViewById(R.id.editTextTextPersonName);
+        editText.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+            @Override
+            public boolean onEditorAction(TextView textView, int i, KeyEvent keyEvent) {
+                if (i == EditorInfo.IME_ACTION_SEARCH) {
+                    String text = editText.getText().toString();
+                    if (text != null){
+                        Log.e("SA", text);
+                        File dir = new File(MainActivity.this.getFilesDir(), "json");
+                        File seriesJson = new File(dir, "seriesJson.json");
+                        File moviesJson = new File(dir, "moviesJson.json");
+                        try {
+                            FileReader movieReader = new FileReader(moviesJson);
+                            FileReader seriesReader = new FileReader(seriesJson);
+                            Gson gson = new Gson();
+                            HashSet<Movie> movies = gson.fromJson(movieReader, new TypeToken<HashSet<Movie>>() {
+                            }.getType());
+                            HashSet<Series> series = gson.fromJson(seriesReader, new TypeToken<HashSet<Series>>() {
+                            }.getType());
+                            ArrayMap<Movie, Integer> searchMovieArray = new ArrayMap<>();
+                            ArrayMap<Series, Integer> searchSeriesArray = new ArrayMap<>();
+                            for (Movie movie : movies) {
+                                searchMovieArray.put(movie, checkName(movie.getName(), text));
+                            }
+                            for (Series series1 : series) {
+                                searchSeriesArray.put(series1, checkName(series1.getName(), text));
+                            }
+                            ArrayList<Movie> movieArrayListSearch = new ArrayList<>();
+                            ArrayList<Series> seriesArrayListSearch = new ArrayList<>();
+
+                            int max = 0;
+                            sortMovieArray(searchMovieArray, movieArrayListSearch, max);
+                            sort(searchSeriesArray, seriesArrayListSearch, max);
+                            refreshList(movieArrayListSearch, seriesArrayListSearch);
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }}
+                    return true;
+                }
+                return false;
+            }
+        });
         search.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -431,7 +550,7 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
         return i;
     }
 
-    @Override
+
     public void onBackPressed() {
         refreshList(movies, series);
     }
@@ -478,6 +597,9 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
                     writeFileOnInternalStorage(MainActivity.this, "moviesJson.json", s);
                 }
                 //Toast.makeText(getApplicationContext(), s, Toast.LENGTH_LONG).show();
+                mSwipeRefreshLayout.setRefreshing(false);
+                refreshList(movies, series);
+                search();
 
             }
 
@@ -502,4 +624,5 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
         DownloadJSON getJSON = new DownloadJSON();
         getJSON.execute();
     }
+
 }

@@ -46,6 +46,7 @@ public class SeriesRecViewAdapter extends RecyclerView.Adapter<SeriesRecViewAdap
     @Override
     public void onBindViewHolder(@NonNull final ViewHolder holder, final int position) {
         final Gson gson = new Gson();
+        if (Series.get(position).getName() != null){
         holder.txtName.setText(Series.get(position).getName());
         holder.parent.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -56,7 +57,7 @@ public class SeriesRecViewAdapter extends RecyclerView.Adapter<SeriesRecViewAdap
                     intent.putExtra("seriesObject" , gson.toJson(Series.get(position)) );
                     view.getContext().startActivity(intent);
             }
-        });
+        });}
 
         Glide.with(context)
                 .asBitmap()
