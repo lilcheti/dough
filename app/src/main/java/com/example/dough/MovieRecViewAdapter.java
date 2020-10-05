@@ -72,10 +72,8 @@ public class MovieRecViewAdapter extends RecyclerView.Adapter<MovieRecViewAdapte
         int width = LinearLayout.LayoutParams.MATCH_PARENT;
         int height = LinearLayout.LayoutParams.MATCH_PARENT;
 
-        //Make Inactive Items Outside Of PopupWindow
-        boolean focusable = true;
         //Create a window with our parameters
-        final PopupWindow popupWindow = new PopupWindow(popupView, width, height, focusable);
+        final PopupWindow popupWindow = new PopupWindow(popupView, width, height, true);
         popupWindow.showAtLocation(view, Gravity.CENTER, 0, 0);
         TextView test2 = popupView.findViewById(R.id.textView);
         test2.setText(movie.get(position).getName());

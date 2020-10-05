@@ -19,16 +19,23 @@ import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
+import android.telephony.TelephonyManager;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.ArrayMap;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.KeyEvent;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.view.inputmethod.EditorInfo;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.LinearLayout;
+import android.widget.PopupWindow;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -63,6 +70,10 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 import java.util.function.LongFunction;
 
 public class MainActivity extends AppCompatActivity implements SwipeRefreshLayout.OnRefreshListener {
@@ -73,6 +84,7 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
     SwipeRefreshLayout mSwipeRefreshLayout;
     static ArrayList<Movie> movies = new ArrayList<>();
     static ArrayList<Series> series = new ArrayList<>();
+    volatile boolean shutdown = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -109,7 +121,6 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
 
             }
         });
-
 
         downloadJSON("https://raw.githubusercontent.com/rimthekid/Dough-mast/master/movies.json", false);
         downloadJSON("https://raw.githubusercontent.com/rimthekid/Dough-mast/master/series.json", true);
@@ -157,9 +168,12 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
             @Override
             protected void onPostExecute(String s) {
                 super.onPostExecute(s);
+                TextView loadsess = findViewById(R.id.loadsess);
+
                 if (s!=null){
                 if (isSeries) {
                     try {
+                        loadsess.setText("Downloading Series List...");
                         loadIntoListView(s.trim(), true);
                         writeFileOnInternalStorage(MainActivity.this, "seriesJson.json", s);
                     } catch (JSONException | FileNotFoundException e) {
@@ -167,6 +181,7 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
                     }
                 } else {
                     try {
+                        loadsess.setText("Downloading Movies List...");
                         loadIntoListView(s.trim(), false);
                         writeFileOnInternalStorage(MainActivity.this, "moviesJson.json", s);
                     } catch (JSONException | FileNotFoundException e) {
@@ -247,6 +262,9 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
             series.addAll(seriezz);
            // System.out.println(series.get(2).getImgURL());
             System.out.println("kos");
+            RelativeLayout loadd = findViewById(R.id.loadd);
+            loadd.setVisibility(RelativeLayout.GONE);
+
         }
 
 
@@ -297,6 +315,7 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
             downloadedFilmRecylclerView.setVisibility(View.VISIBLE);*/
         refreshList(movies, series);
 
+
         }
 
 
@@ -307,7 +326,7 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
         ArrayList<Movie> mm = new ArrayList<>();
         ArrayList<Series> ss = new ArrayList<>();
         if (movieArrayList.size() != 0 && seriesArrayList.size() != 0){
-        for (int i = 0 ;i<40;i++){
+        for (int i = 0 ;i<75;i++){
             try {
                 mm.add(movieArrayList.get(i));
                 ss.add(seriesArrayList.get(i));
@@ -319,11 +338,17 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
         MovieRecViewAdapter adapter = new MovieRecViewAdapter(this);
         adapter.setMovie(mm);
         movierecview.setAdapter(adapter);
-        movierecview.setLayoutManager(new GridLayoutManager(this, 3));
+        TelephonyManager manager = (TelephonyManager)getApplicationContext().getSystemService(Context.TELEPHONY_SERVICE);
+        if (Objects.requireNonNull(manager).getPhoneType() == TelephonyManager.PHONE_TYPE_NONE) {
+            movierecview.setLayoutManager(new GridLayoutManager(this, 4));
+            seriesrecview.setLayoutManager(new GridLayoutManager(this, 4));
+        } else {
+            movierecview.setLayoutManager(new GridLayoutManager(this, 3));
+            seriesrecview.setLayoutManager(new GridLayoutManager(this, 3));
+        }
         SeriesRecViewAdapter adapterr = new SeriesRecViewAdapter(this);
         adapterr.setSeries(ss);
         seriesrecview.setAdapter(adapterr);
-        seriesrecview.setLayoutManager(new GridLayoutManager(this, 3));
         mSwipeRefreshLayout.setRefreshing(false);
 
     }
