@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Build;
+import android.os.Bundle;
 import android.os.Environment;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -87,9 +88,10 @@ public class MovieRecViewAdapter extends RecyclerView.Adapter<MovieRecViewAdapte
             @Override
             public void onClick(View view) {
                 Toast.makeText(context, movie.get(position).getName(), Toast.LENGTH_SHORT).show();
-                Intent intent = new Intent(view.getContext(), Playmovie.class);
-                intent.putExtra("vidurl", movie.get(position).getVidURL());
-                intent.putExtra("inLocal", "download");
+                Bundle b = new Bundle();
+                b.putStringArrayList("links",movie.get(position).getUrls());
+                Intent intent = new Intent(view.getContext(), LinkListActivity.class);
+                intent.putExtras(b);
                 view.getContext().startActivity(intent);
             }
         });

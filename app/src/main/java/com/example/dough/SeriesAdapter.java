@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Build;
+import android.os.Bundle;
 import android.os.Environment;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -52,10 +53,10 @@ public class SeriesAdapter extends RecyclerView.Adapter<SeriesAdapter.ViewHolder
         holder.play.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Toast.makeText(context, episodes.get(position).getName(), Toast.LENGTH_SHORT).show();
-                Intent intent = new Intent(view.getContext(), Playmovie.class);
-                intent.putExtra("vidurl", episodes.get(position).getVidURL());
-                intent.putExtra("inLocal", "download");
+                Bundle b = new Bundle();
+                b.putStringArrayList("links",episodes.get(position).getUrls());
+                Intent intent = new Intent(view.getContext(), LinkListActivity.class);
+                intent.putExtras(b);
                 view.getContext().startActivity(intent);
             }
         });

@@ -63,7 +63,7 @@ public class SeriesActivity extends AppCompatActivity {
             @Override
             public void onItemSelected(AdapterView<?> adapterView, View view, final int i, long l) {
                 seriesRecView = findViewById(R.id.seriesRecView);
-                SeriesAdapter adapter = new SeriesAdapter(series.getSeasons().get(i ).getEpisodes(), SeriesActivity.this);
+                SeriesAdapter adapter = new SeriesAdapter(series.getSeasons().get(i).getEpisodes(), SeriesActivity.this);
                 seriesRecView.setAdapter(adapter);
                 seriesRecView.setLayoutManager(new GridLayoutManager(SeriesActivity.this, 1));
 
