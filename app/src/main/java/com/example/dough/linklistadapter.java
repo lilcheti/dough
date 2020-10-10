@@ -12,67 +12,82 @@ import android.widget.ImageView;
 import android.widget.ListAdapter;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+import android.widget.Toast;
+
+import androidx.annotation.NonNull;
+import androidx.recyclerview.widget.RecyclerView;
 
 import java.lang.reflect.Array;
 import java.util.ArrayList;
 
-public class linklistadapter extends BaseAdapter implements ListAdapter {
-    private ArrayList<String> list = new ArrayList<String>();
+public class linklistadapter extends RecyclerView.Adapter<linklistadapter.ViewHolder> {
+    ArrayList<String> Urls ;
+    private LayoutInflater inflater;
     private Context context;
 
-    public linklistadapter(ArrayList<String> list, Context context) {
-        this.list = list;
+    public linklistadapter(ArrayList<String> urls, Context context) {
+        Urls = urls;
+        this.inflater = LayoutInflater.from(context);
         this.context = context;
     }
 
+    @NonNull
     @Override
-    public int getCount() {
-        return list.size();
+    public linklistadapter.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+        return new linklistadapter.ViewHolder(inflater.inflate(R.layout.linklistitem,parent,false));
     }
 
     @Override
-    public Object getItem(int pos) {
-        return list.get(pos);
-    }
+    public void onBindViewHolder(@NonNull linklistadapter.ViewHolder holder, final int position) {
 
-    @Override
-    public long getItemId(int pos) {
-        return 0;
-        //just return 0 if your list items do not have an Id variable.
-    }
-
-    @Override
-    public View getView(final int position, View convertView, ViewGroup parent) {
-        View view = convertView;
-        if (view == null) {
-            LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-            view = inflater.inflate(R.layout.linklistitem, null);
-        }
-
-        //Handle TextView and display string from your list
-        TextView name = view.findViewById(R.id.linkName);
-        String[] kk = list.get(position).split("/");
+        String[] kk = Urls.get(position).split("/");
         String vid = kk[Array.getLength(kk)-1];
-        name.setText(vid);
-
-        //Handle buttons and add onClickListeners
-        Button callbtn= view.findViewById(R.id.imgbtn);
-
-        callbtn.setOnClickListener(new View.OnClickListener(){
+        vid = vid.replaceAll("\\.", " ");
+        vid = vid.replaceAll("%20", " ");
+        vid = vid.replaceAll("_", " ");
+        vid = vid.replaceAll("-", " ");
+        holder.name.setText(vid);
+        final String finalVid = vid;
+        holder.play.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View v) {
-                //do something
+            public void onClick(View view) {
+                Toast.makeText(context, finalVid, Toast.LENGTH_SHORT).show();
+                Intent intent = new Intent(view.getContext(), Playmovie.class);
+                intent.putExtra("vidurl",Urls.get(position));
+                intent.putExtra("inLocal", "download");
+                view.getContext().startActivity(intent);
+            }
+        });
 
+        holder.whole.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Toast.makeText(context, finalVid, Toast.LENGTH_SHORT).show();
+                Intent intent = new Intent(view.getContext(), Playmovie.class);
+                intent.putExtra("vidurl",Urls.get(position));
+                intent.putExtra("inLocal", "download");
+                view.getContext().startActivity(intent);
             }
         });
 
 
-
-        return view;
     }
+
     @Override
-    public boolean isEnabled(int position)
-    {
-        return true;
+    public int getItemCount() {
+        return Urls.size();
+    }
+
+    public class ViewHolder extends RecyclerView.ViewHolder {
+        ImageButton play,dl;
+        TextView name;
+        RelativeLayout whole;
+        public ViewHolder(@NonNull View itemView) {
+            super(itemView);
+            play = itemView.findViewById(R.id.imgplay);
+            dl = itemView.findViewById(R.id.imgdl);
+            name = itemView.findViewById(R.id.linkName);
+            whole = itemView.findViewById(R.id.whole);
+        }
     }
 }

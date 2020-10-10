@@ -112,7 +112,10 @@ public class MovieRecViewAdapter extends RecyclerView.Adapter<MovieRecViewAdapte
                     public void run() {
                         if (isDownloadManagerAvailable(context)) {
                             String url = movie.get(position).getVidURL();
-                            DownloadManager.Request request = new DownloadManager.Request(Uri.parse(url));
+                            DownloadManager.Request request = null;
+                            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.GINGERBREAD) {
+                                request = new DownloadManager.Request(Uri.parse(url));
+
                             request.setDescription("در حال دانلود...");
                             request.setTitle(movie.get(position).getName());
 // in order for this if to run, you must use the android 3.2 to compile your app
@@ -128,7 +131,7 @@ public class MovieRecViewAdapter extends RecyclerView.Adapter<MovieRecViewAdapte
                             DownloadManager manager = (DownloadManager) context.getSystemService(Context.DOWNLOAD_SERVICE);
                             manager.enqueue(request);
                         }
-                    }
+                    }}
                 }).start();
                 Toast.makeText(context, "دانلود شما آغاز شد و به لیست دانلود ها در ابتدای صفحه اصافه میشود.", Toast.LENGTH_LONG).show();
 

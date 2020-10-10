@@ -1,14 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
     android:id="@+id/whole"
-    android:clickable="false"
-    android:descendantFocusability="blocksDescendants"
-    android:focusable="false"
-    android:focusableInTouchMode="false"
     >
     <TextView
         android:id="@+id/linkName"
@@ -17,24 +14,33 @@
         android:textSize="18sp"
         android:textStyle="bold"
         android:text="link_name"
-        android:clickable="false"
-        android:focusable="false"
-        android:focusableInTouchMode="false"
         android:layout_margin="5dp"
         android:ellipsize="end"
         android:maxLines="1"
+        android:layout_centerHorizontal="true"
         />
-
-    <Button
+    <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-       android:text="Download"
-        android:id="@+id/imgbtn"
-        android:clickable="true"
-        android:focusable="false"
-        android:focusableInTouchMode="false"
-        android:layout_alignParentRight="true"
-        android:layout_margin="10dp"
+        android:layout_below="@+id/linkName"
+        android:layout_centerHorizontal="true">
+        <ImageButton
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:src="@drawable/exo_controls_play"
+            android:id="@+id/imgplay"
+            />
+        <ImageButton
+            android:id="@+id/imgdl"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            app:srcCompat="@android:drawable/stat_sys_download"
         />
+
+    </LinearLayout>
+    <View
+    android:layout_width="match_parent"
+    android:layout_height="1dp"
+    android:background="@android:color/darker_gray"/>
 
 </RelativeLayout>
