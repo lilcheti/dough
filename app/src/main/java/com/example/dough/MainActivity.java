@@ -76,7 +76,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.function.LongFunction;
 
-public class MainActivity extends AppCompatActivity implements SwipeRefreshLayout.OnRefreshListener {
+public class MainActivity extends BaseActivity implements SwipeRefreshLayout.OnRefreshListener {
     private static final int MY_PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE = 2;
     static final Integer READ_EXST = 0x4;
     private RecyclerView movierecview, seriesrecview;
@@ -89,6 +89,7 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        startActivity(new Intent(MainActivity.this,BaseActivity.class));
         // permissionStuff();
         setContentView(R.layout.activity_main);
         this.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
@@ -125,11 +126,21 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
         downloadJSON("https://raw.githubusercontent.com/rimthekid/Dough-mast/master/movies.json", false);
         downloadJSON("https://raw.githubusercontent.com/rimthekid/Dough-mast/master/series.json", true);
         //refreshList(movies, series);
-        search();
+       // search();
         //dodol("https://raw.githubusercontent.com/rimthekid/Dough-mas/master/moviesKol.json", false);
         //dodol("https://raw.githubusercontent.com/rimthekid/Dough-mas/master/seriesKol.json", true);
 
 
+    }
+
+    @Override
+    int getLayoutId() {
+        return R.layout.activity_main;
+    }
+
+    @Override
+    int getBottomNavigationMenuItemId() {
+        return R.id.action_home;
     }
 
 
